@@ -1,0 +1,105 @@
+{
+    "name": "ewk/moonshine-cms",
+    "description": "Block CMS for Laravel with a MoonShine 4 admin: blocks, a page tree with an address resolver, layouts, headers, footers and menus, metadata and a sitemap feed.",
+    "type": "library",
+    "keywords": [
+        "laravel",
+        "moonshine",
+        "cms",
+        "blocks",
+        "page-builder",
+        "pages",
+        "menus",
+        "seo",
+        "admin"
+    ],
+    "homepage": "https://github.com/einzelwerk/moonshine-cms",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/einzelwerk/moonshine-cms/issues",
+        "source": "https://github.com/einzelwerk/moonshine-cms"
+    },
+    "authors": [
+        {
+            "name": "Dimitrienko Vadim",
+            "email": "vd@ewk.agency"
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "ewk/moonshine-media": "^0.1",
+        "illuminate/container": "^13.0",
+        "illuminate/contracts": "^13.0",
+        "illuminate/database": "^13.0",
+        "illuminate/http": "^13.0",
+        "illuminate/routing": "^13.0",
+        "illuminate/support": "^13.0",
+        "illuminate/validation": "^13.0",
+        "illuminate/view": "^13.0",
+        "moonshine/moonshine": "^4.19",
+        "ramsey/uuid": "^4.7",
+        "symfony/http-foundation": "^7.0|^8.0",
+        "zircote/swagger-php": "^6.0"
+    },
+    "require-dev": {
+        "driftingly/rector-laravel": "^2.0",
+        "friendsofphp/php-cs-fixer": "^3.75",
+        "larastan/larastan": "^3.13",
+        "mockery/mockery": "^1.6",
+        "orchestra/testbench": "^11.0",
+        "pestphp/pest": "^5.1",
+        "pestphp/pest-plugin-arch": "^5.0",
+        "pestphp/pest-plugin-laravel": "^5.0",
+        "rector/rector": "^2.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ewk\\Cms\\Blocks\\": "src/Blocks/",
+            "Ewk\\Cms\\Layouts\\": "src/Layouts/",
+            "Ewk\\Cms\\Pages\\": "src/Pages/",
+            "Ewk\\Cms\\Seo\\": "src/Seo/",
+            "Ewk\\MoonShineCms\\": "src/Admin/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ewk\\Cms\\Blocks\\Tests\\": "tests/Blocks/",
+            "Ewk\\Cms\\Layouts\\Tests\\": "tests/Layouts/",
+            "Ewk\\Cms\\Pages\\Tests\\": "tests/Pages/",
+            "Ewk\\Cms\\Seo\\Tests\\": "tests/Seo/",
+            "Ewk\\MoonShineCms\\Tests\\": "tests/Admin/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Ewk\\Cms\\Blocks\\CmsBlocksServiceProvider",
+                "Ewk\\Cms\\Pages\\CmsPagesServiceProvider",
+                "Ewk\\Cms\\Layouts\\CmsLayoutsServiceProvider",
+                "Ewk\\Cms\\Seo\\CmsSeoServiceProvider",
+                "Ewk\\MoonShineCms\\MoonShineCmsServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "scripts": {
+        "test": "pest",
+        "test:arch": "pest tests/Arch",
+        "test:blocks": "pest tests/Blocks",
+        "test:pages": "pest tests/Pages",
+        "test:layouts": "pest tests/Layouts",
+        "test:seo": "pest tests/Seo",
+        "test:admin": "pest tests/Admin",
+        "format": "php-cs-fixer fix --allow-risky=yes",
+        "format:dry": "php-cs-fixer fix --allow-risky=yes --dry-run --diff",
+        "phpstan": "phpstan analyse --memory-limit=-1",
+        "rector": "rector process",
+        "rector:dry": "rector process --dry-run"
+    }
+}

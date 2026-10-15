@@ -1,0 +1,882 @@
+/*
+ * The look of the block editor. Every colour is a MoonShine theme variable, so
+ * the light and the dark theme are the same set of rules; every selector is
+ * scoped under `.cms-editor` (or the class of one of the custom fields), so
+ * nothing here leaks into the rest of the panel.
+ *
+ * The cards ride the accordion of MoonShine (`.accordion`, `.accordion-item`,
+ * `.accordion-btn`, `.accordion-body`); what follows adds only what that set
+ * has no rule for.
+ */
+
+/* The switch between the settings and the blocks of one record. A segmented
+   control of the same shape as the language switch beside it: the form below
+   carries tabs of its own, and a second row of tabs above them would read as
+   a hierarchy that does not exist. */
+.cms-switcher {
+    display: inline-flex;
+    margin-bottom: calc(var(--spacing) * 5);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.cms-switcher__item {
+    display: inline-flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1.5);
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    color: var(--color-base-700);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.cms-switcher__item:hover {
+    color: var(--color-base-text);
+}
+
+.cms-switcher__item._is-active {
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
+    pointer-events: none;
+}
+
+.cms-editor {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+    color: var(--color-base-text);
+}
+
+/* ------------------------------------------------------------------ panel */
+
+/* The line above the editor: the switch of the record and the language, laid
+   out exactly as the bar of the form of the same record. */
+.cms-editor__bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: calc(var(--spacing) * 2);
+}
+
+.cms-editor__lead {
+    margin-right: auto;
+}
+
+.cms-editor__lead .cms-switcher {
+    margin-bottom: 0;
+}
+
+.cms-editor__bar-label {
+    color: var(--color-base-600);
+    font-size: var(--text-xs);
+}
+
+.cms-editor__panel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 4);
+    flex-wrap: wrap;
+    padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-base);
+}
+
+.cms-editor__state {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    flex-wrap: wrap;
+    font-size: var(--text-xs);
+    color: var(--color-base-700);
+}
+
+.cms-editor__actions {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    flex-wrap: wrap;
+}
+
+.cms-editor__toggle {
+    border: 0;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    font-size: var(--text-xs);
+    color: var(--color-primary);
+    text-decoration: underline;
+}
+
+.cms-editor__toggle:hover {
+    opacity: 0.8;
+}
+
+/* The panel holds the whole state of the editor, hints and the empty list
+   included: nothing of it floats above the «settings | blocks» switch. */
+.cms-editor__hint,
+.cms-editor__empty {
+    flex: 1 1 100%;
+}
+
+/* The one language switch of the editor: every translatable field follows it. */
+.cms-editor__locales {
+    display: inline-flex;
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.cms-editor__locale {
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-base-700);
+}
+
+.cms-editor__locale._is-active {
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
+}
+
+.cms-editor__hint,
+.cms-editor__empty {
+    padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+    border: 1px dashed var(--color-base-stroke);
+    border-radius: var(--radius-lg);
+    color: var(--color-base-700);
+    font-size: var(--text-xs);
+}
+
+.cms-editor__empty {
+    padding: calc(var(--spacing) * 8) calc(var(--spacing) * 4);
+    text-align: center;
+    font-size: var(--text-base);
+}
+
+/* ------------------------------------------------------------------- list */
+
+.cms-editor__list {
+    display: flex;
+    flex-direction: column;
+}
+
+/* A container of cards is also the drop target of the sortable, so it keeps a
+   height of its own while it is empty. */
+.cms-editor__list:empty,
+.cms-card__slot-list:empty {
+    min-height: calc(var(--spacing) * 6);
+}
+
+/* ------------------------------------------------------- insertion line */
+
+/* The place a new block goes: a hair line that only shows what it offers when
+   the pointer is over it, so a quiet list stays quiet. */
+.cms-insert {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: calc(var(--spacing) * 5);
+}
+
+.cms-insert::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: var(--color-primary);
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.cms-insert:hover::before,
+.cms-insert:focus-within::before {
+    opacity: 0.5;
+}
+
+.cms-insert__button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: calc(var(--spacing) * 6);
+    height: calc(var(--spacing) * 6);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: 999px;
+    background-color: var(--color-base);
+    color: var(--color-base-700);
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.cms-insert:hover .cms-insert__button,
+.cms-insert__button:focus-visible {
+    opacity: 1;
+}
+
+.cms-insert__button:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+/* ------------------------------------------------------------------- card */
+
+.cms-card .accordion-item {
+    /* A select of the panel opens over the edge of its card, and the accordion
+       of MoonShine clips it away. */
+    overflow: visible;
+}
+
+.cms-card--dragged .accordion-item,
+.cms-card--ghost .accordion-item {
+    opacity: 0.5;
+}
+
+.cms-card--dirty .accordion-item {
+    border-color: var(--color-primary);
+}
+
+.cms-card--unknown .accordion-item {
+    border-color: var(--color-warning);
+}
+
+/* The buttons of the head are square and as tall as the band they sit in, so
+   the head is given air of its own: without it they touch the corner of the
+   card on every side. */
+.cms-card__head {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    padding-block: calc(var(--spacing) * 2);
+    padding-inline: calc(var(--spacing) * 4);
+}
+
+.cms-card__summary {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-inline: 0;
+    cursor: pointer;
+}
+
+.cms-card__title {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    min-width: 0;
+}
+
+/* The one place a card is taken hold of. */
+.cms-card__handle {
+    display: inline-flex;
+    flex: 0 0 auto;
+    cursor: grab;
+    color: var(--color-base-600);
+}
+
+.cms-card__handle:active {
+    cursor: grabbing;
+}
+
+.cms-card__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    color: var(--color-base-600);
+}
+
+.cms-card__icon svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+}
+
+.cms-card__type {
+    flex: 0 0 auto;
+    font-weight: 600;
+}
+
+.cms-card__caption {
+    min-width: 0;
+    font-weight: 400;
+    color: var(--color-base-700);
+}
+
+.cms-card__variant {
+    flex: 0 0 auto;
+    font-size: var(--text-xs);
+    font-weight: 400;
+    color: var(--color-base-600);
+}
+
+.cms-card__badges,
+.cms-card__actions {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    flex: 0 0 auto;
+}
+
+.cms-card--inactive .cms-card__title {
+    opacity: 0.6;
+}
+
+.cms-card__note {
+    margin-bottom: calc(var(--spacing) * 3);
+    font-size: var(--text-xs);
+    color: var(--color-base-700);
+}
+
+.cms-card__form .form-group:last-of-type {
+    margin-bottom: 0;
+}
+
+/* «More»: the name, the anchor and the activity of a block, folded away. */
+.cms-card__more {
+    margin-top: calc(var(--spacing) * 4);
+}
+
+/* -------------------------------------------------- language of one field */
+
+/* The language of a translatable input, drawn from the attribute the adapter
+   marks the wrapper with, so a new language needs no new rule. */
+.cms-card__form [data-cms-locale] {
+    position: relative;
+}
+
+.cms-card__form [data-cms-locale]::before {
+    content: attr(data-cms-locale);
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 calc(var(--spacing) * 1);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-base-100);
+    /* Two steps darker than the captions around it: the mark is small and
+       uppercase, and on the light chip of `base-100` the muted ink of a hint
+       does not carry it in either theme. */
+    color: var(--color-base-800);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    text-transform: uppercase;
+    pointer-events: none;
+}
+
+/* Filled in one language and empty in another: the mark says which. The chip
+   of the warning is light in both themes, so the ink on it is the dark one of
+   the light theme and the ground of the dark one, and never the text colour,
+   which follows the theme and would vanish in the dark. */
+.cms-card__form [data-cms-locale][data-cms-empty]::before {
+    background-color: var(--color-warning);
+    color: var(--color-base-text);
+}
+
+.dark .cms-card__form [data-cms-locale][data-cms-empty]::before {
+    color: var(--color-base);
+}
+
+/* Inside a repeater row the marked wrapper holds the bare input — the caption
+   is a row of the grid above it — so the badge moves out of the input and next
+   to that caption instead of sitting on top of the text. The wrapper of the
+   top level is a form group of MoonShine and keeps the badge where it is. */
+.cms-card__form [data-cms-locale]:not(.moonshine-field)::before {
+    top: auto;
+    bottom: calc(100% + var(--spacing) * 1.5);
+}
+
+/* A repeater row lays its fields out as a grid of cells, one cell per field,
+   and a translatable field takes one cell per language. The cell of a language
+   that is not on show has to go as a whole: hiding what is inside it would
+   leave it holding a column of the row empty next to the language that is
+   shown. The caption of the cell carries the mark, so the cell is found by it —
+   and it carries the same `display` as the input under it, before Alpine takes
+   over and after. */
+.cms-editor .table-grid > .grid:has(> [data-cms-locale-label][style*='none']) {
+    display: none;
+}
+
+/* ------------------------------------------------------------------- slot */
+
+.cms-card__slots {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: calc(var(--spacing) * 3);
+    margin-top: calc(var(--spacing) * 4);
+}
+
+.cms-card__slot {
+    grid-column: span var(--cms-slot-span, 12) / span var(--cms-slot-span, 12);
+    padding: calc(var(--spacing) * 3);
+    border: 1px dashed var(--color-base-stroke);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-base-100);
+}
+
+@media (max-width: 767px) {
+    .cms-card__slot {
+        grid-column: 1 / -1;
+    }
+}
+
+.cms-card__slot-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 2);
+    margin-bottom: calc(var(--spacing) * 2);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-base-700);
+}
+
+.cms-card__slot-list {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------------------------------------------------------------- library */
+
+/*
+ * The dialog of the media picker (`ewk/moonshine-media`) carries the class
+ * `cms-library` too, next to `cms-picker`, and spaces itself; this rule is
+ * for the block library alone, so it never decides the gap of that dialog,
+ * whichever of the two stylesheets the page loads last.
+ */
+.cms-library:not(.cms-picker) {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 4);
+}
+
+.cms-library__search {
+    max-width: 22rem;
+}
+
+.cms-library__note {
+    padding: calc(var(--spacing) * 6) 0;
+    text-align: center;
+    color: var(--color-base-700);
+}
+
+.cms-library__category-title {
+    margin-bottom: calc(var(--spacing) * 2);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-base-700);
+}
+
+.cms-library__entries {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: calc(var(--spacing) * 3);
+}
+
+.cms-library__entry {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+    padding: calc(var(--spacing) * 3);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-base);
+    text-align: left;
+}
+
+.cms-library__entry:hover {
+    border-color: var(--color-primary);
+}
+
+.cms-library__tile {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: calc(var(--spacing) * 3);
+    align-items: start;
+    border: 0;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    text-align: left;
+    color: inherit;
+}
+
+.cms-library__icon {
+    grid-row: 1 / 3;
+    display: inline-flex;
+    color: var(--color-base-700);
+}
+
+.cms-library__icon svg {
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+}
+
+.cms-library__entry-title {
+    font-weight: 600;
+}
+
+.cms-library__entry-about {
+    font-size: var(--text-xs);
+    color: var(--color-base-700);
+}
+
+.cms-library__variants {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 1);
+}
+
+.cms-library__variant {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 1);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: 999px;
+    padding: 0 calc(var(--spacing) * 2);
+    background: none;
+    cursor: pointer;
+    font-size: var(--text-xs);
+    color: var(--color-base-700);
+}
+
+.cms-library__variant:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+}
+
+.cms-library__variant .cms-library__icon svg {
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+}
+
+.cms-library__warning {
+    font-size: var(--text-xs);
+    color: var(--color-warning);
+}
+
+/* -------------------------------------------------------- repeater layout */
+
+/*
+ * A vertical `Json` row is a grid of label/value pairs inside one table cell.
+ * Left alone it is a full width column of inputs taller than the screen; here
+ * it becomes a card whose short fields sit two per row and whose wide ones —
+ * a link, a picture, a text area — take the whole width.
+ */
+/* A vertical repeater is a table only by markup. Laid out as blocks — table,
+   body and row alike — the row card fills the width it was given instead of
+   shrinking to its content inside an anonymous cell. A repeater of plain
+   fields has no `.table-grid` and keeps its table. */
+.cms-editor table:has(.table-grid),
+.cms-editor table:has(.table-grid) > tbody,
+.cms-editor table:has(.table-grid) > tbody > tr {
+    display: block;
+    width: 100%;
+}
+
+.cms-editor table:has(.table-grid) > tbody > tr {
+    margin-bottom: calc(var(--spacing) * 3);
+}
+
+.cms-editor .table-grid {
+    display: block;
+    width: 100%;
+    /* MoonShine caps a cell to keep a wide table readable; a vertical row is
+       a card and not a column. */
+    max-width: none;
+    padding: calc(var(--spacing) * 3) !important;
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-base-100);
+}
+
+.cms-editor .table-grid > .grid {
+    display: block;
+    margin-bottom: calc(var(--spacing) * 3);
+}
+
+.cms-editor .table-grid > .grid > div {
+    grid-column: auto;
+    max-width: none;
+}
+
+.cms-editor .table-grid > .grid .form-label {
+    margin-bottom: calc(var(--spacing) * 1);
+    font-size: var(--text-xs);
+    color: var(--color-base-700);
+}
+
+@media (min-width: 1024px) {
+    .cms-editor .table-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0 calc(var(--spacing) * 4);
+        align-items: start;
+    }
+
+    /* Wide fields keep the whole row: they carry their own inner layout. */
+    .cms-editor .table-grid > .grid:has(.cms-link),
+    .cms-editor .table-grid > .grid:has(.cms-media),
+    .cms-editor .table-grid > .grid:has(textarea),
+    .cms-editor .table-grid > .grid:has(.js-json-repeater) {
+        grid-column: 1 / -1;
+    }
+
+    /* The grab handle and the buttons of a row are controls of the card and
+       not fields of it. Half a row each, and the first caption is pushed into
+       the other half with a hole where a field should stand. */
+    .cms-editor .table-grid > .grid:has([data-field-selector='__handle']),
+    .cms-editor .table-grid > .flex {
+        grid-column: 1 / -1;
+    }
+}
+
+/* The handle is a grip and not a field: the band it sits in is as tall as the
+   grip and carries no gap under it. */
+.cms-editor .table-grid > .grid:has([data-field-selector='__handle']) {
+    margin-bottom: calc(var(--spacing) * 1);
+}
+
+/* ---------------------------------------------------- rows of a repeater */
+
+/* The head of one row: the grip, the title the row is read by and the delete
+   button in the corner. Assembled by the script, see cms-editor.js. */
+.cms-row__head {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    margin-bottom: calc(var(--spacing) * 3);
+}
+
+/* The fields of a row stand in two columns on a wide screen, and the head is
+   not a field: it takes the whole width, so the delete button and the chevron
+   keep the right edge of the row and not the middle of it. */
+.cms-editor .table-grid > .cms-row__head {
+    grid-column: 1 / -1;
+}
+
+/* The grip keeps the left edge and stays the size of the glyph. */
+.cms-row__head > .moonshine-field {
+    flex: 0 0 auto;
+    margin: 0;
+}
+
+/* The band the grip arrived in holds nothing once the grip is in the head.
+   Named twice on purpose: the rule of the row grid above is more specific and
+   would otherwise put the empty band back on the screen. */
+.cms-row__band,
+.cms-editor .table-grid > .cms-row__band {
+    display: none;
+}
+
+/* The buttons of the row keep the corner and stop stretching across it. */
+.cms-row__head > .flex {
+    flex: 0 0 auto;
+    width: auto;
+    margin: 0;
+}
+
+.cms-row__toggle {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: calc(var(--spacing) * 2);
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--color-base-800);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.cms-row__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* A row nobody has filled in yet is named by its number, and the number is no
+   title: it says so by its colour. */
+.cms-row__title._is-fallback {
+    color: var(--color-base-600);
+    font-weight: 400;
+}
+
+.cms-row__chevron {
+    flex: 0 0 auto;
+    width: calc(var(--spacing) * 5);
+    height: calc(var(--spacing) * 5);
+    color: var(--color-base-700);
+    transition: transform var(--default-transition-duration, 150ms);
+}
+
+/* Folded away: the head is the whole row, the fields stay in the document and
+   keep their values, so saving a folded row saves what it holds. */
+td.table-grid._is-collapsed > :not(.cms-row__head) {
+    display: none;
+}
+
+/* Folded, the head is the whole row and carries nothing under it. */
+td.table-grid._is-collapsed .cms-row__head {
+    margin-bottom: 0;
+}
+
+td.table-grid._is-collapsed .cms-row__chevron {
+    transform: rotate(-90deg);
+}
+
+
+
+/* ------------------------------------------------------------ link picker */
+
+.cms-link {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 3);
+    width: 100%;
+}
+
+/* Captions on one line and controls on the next: the columns are aligned by
+   their top and not by their bottom, because a hint under one of them would
+   otherwise push its neighbours down by the height of that hint. */
+.cms-link__row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: calc(var(--spacing) * 3);
+}
+
+.cms-link__field {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+    flex: 1 1 16rem;
+    min-width: 12rem;
+    margin: 0;
+}
+
+/* The question comes first and stays narrow: the answer is what grows. */
+.cms-link__field--kind {
+    flex: 0 0 14rem;
+    max-width: 14rem;
+}
+
+/* One line tall even when empty: the captions of the row have to occupy the
+   same height for the controls under them to stand on one line. */
+.cms-link__label {
+    min-height: 1lh;
+    font-size: var(--text-xs);
+    color: var(--color-base-700);
+}
+
+.cms-link__note {
+    font-size: var(--text-xs);
+    color: var(--color-base-600);
+    margin: 0;
+}
+
+/* A link to a file is the file: its thumbnail and its name, and the button
+   that opens the library. */
+.cms-link__file {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    min-width: 0;
+}
+
+.cms-link__file-thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    width: calc(var(--spacing) * 10);
+    height: calc(var(--spacing) * 10);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-md);
+    background-color: var(--color-base-100);
+    overflow: hidden;
+}
+
+.cms-link__file-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.cms-link__file-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: var(--text-sm);
+    color: var(--color-base-text);
+}
+
+/* The select of the panel replaces the element with a wrapper of its own, so
+   the width is asked of both. */
+.cms-link__select,
+.cms-link__field .ts-wrapper {
+    width: 100%;
+}
+
+/* The searchable select draws a control of its own in type a size smaller,
+   and beside a plain select of the same row it came out visibly shorter. It
+   is given the type of the form instead of a height copied from a ruler. */
+.cms-link__field .ts-control,
+.cms-link__field .ts-control > *,
+.cms-link__field .ts-control input {
+    font-size: var(--ms-form-default-font-size);
+    line-height: 1.5;
+}
+
+.cms-link__catalog {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 3);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-base-50);
+}
+
+.cms-link__params {
+    display: flex;
+    flex-wrap: wrap;
+    gap: calc(var(--spacing) * 3);
+}
+
+/* The switch is a column like every other field of the row: an empty caption
+   above it, so the box itself stands on the line of the controls instead of
+   being nudged there by a padding guessed from their height. */
+.cms-link__new-tab {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 1);
+    flex: 0 0 auto;
+    font-size: var(--text-xs);
+    color: var(--color-base-700);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.cms-link__new-tab-box {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+    min-height: var(--ms-form-default-min-height);
+}

@@ -1,0 +1,155 @@
+/*
+ * The entity forms of the CMS: one language switch above the fields, the
+ * language marked on the input it belongs to, and the group of page templates
+ * under the tree.
+ *
+ * Everything is written in the tokens of the panel theme, so a theme of an
+ * installation carries the form along.
+ */
+
+/* ------------------------------------------------------------- language */
+
+/* One line above the fields: the switch of the record on the left, the
+   language of the form on the right, and the fields right under it. */
+.cms-form__lead {
+    margin-right: auto;
+}
+
+.cms-form__lead .cms-switcher {
+    margin-bottom: 0;
+}
+
+.cms-form__bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: calc(var(--spacing) * 2);
+    margin-bottom: calc(var(--spacing) * 2);
+}
+
+/* The bar belongs to the form under it and stands close to it: the rhythm of
+   the panel puts a full field gap between two children of a form, and here
+   that gap read as a band of nothing between the language and the fields. */
+.cms-form > .cms-form__bar + * {
+    margin-top: 0;
+}
+
+.cms-form__bar-label {
+    color: var(--color-base-600);
+    font-size: var(--text-xs);
+}
+
+.cms-form__locales {
+    display: inline-flex;
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+.cms-form__locale {
+    padding: calc(var(--spacing) * 1) calc(var(--spacing) * 3);
+    border: 0;
+    background: none;
+    cursor: pointer;
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--color-base-700);
+}
+
+.cms-form__locale._is-active {
+    background-color: var(--color-primary);
+    color: var(--color-primary-text);
+}
+
+/* The language of one input, and the mark of a translation still missing. */
+.cms-form [data-cms-locale] {
+    position: relative;
+}
+
+.cms-form [data-cms-locale]::before {
+    content: attr(data-cms-locale);
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0 calc(var(--spacing) * 1);
+    border-radius: var(--radius-sm);
+    background-color: var(--color-base-100);
+    color: var(--color-base-600);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    text-transform: uppercase;
+    pointer-events: none;
+}
+
+/* The row of a translatable field holds the bare input and its caption stands
+   above the row, so the badge goes up to the line of that caption instead of
+   sitting on the top edge of the input. */
+.cms-form .cms-translatable__row[data-cms-locale]::before {
+    top: auto;
+    bottom: calc(100% + var(--spacing) * 2);
+}
+
+.cms-form [data-cms-locale][data-cms-empty]::before {
+    background-color: var(--color-warning);
+    color: var(--color-base);
+}
+
+/* ----------------------------------------------------------- seo snippet */
+
+/* The snippet holds two fields of its own, and they are not form groups of
+   the panel: the rhythm of the form is repeated inside it, so the caption of
+   the description does not sit on the counter of the title. */
+.cms-seo__locale {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing) * 2);
+}
+
+.cms-seo__locale .form-label:not(:first-child) {
+    margin-top: calc(var(--spacing) * 4);
+}
+
+.cms-seo__counter {
+    display: block;
+    color: var(--color-base-600);
+    font-size: var(--text-xs);
+}
+
+.cms-seo__counter._is-over {
+    color: var(--color-error);
+}
+
+.cms-seo__preview {
+    margin-top: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 3);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-lg);
+}
+
+.cms-seo__preview-caption {
+    display: block;
+    color: var(--color-base-600);
+    font-size: var(--text-xs);
+}
+
+.cms-seo__preview-title {
+    display: block;
+    font-size: var(--text-lg);
+    color: var(--color-primary);
+}
+
+.cms-seo__preview-title._is-fallback {
+    color: var(--color-base-600);
+}
+
+.cms-seo__preview-url {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--color-base-600);
+}
+
+.cms-seo__preview-description {
+    display: block;
+    font-size: var(--text-sm);
+}

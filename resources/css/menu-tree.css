@@ -1,0 +1,107 @@
+/*
+ * The menu item tree of the panel. Colours are MoonShine theme variables,
+ * every selector is scoped under `.cms-menu-tree`.
+ */
+
+/* The tree stands under the fields of the form and not against them: a
+   caption glued to the switch above it reads as that switch's own. */
+.cms-menu-tree {
+    color: var(--color-base-text);
+    margin-top: calc(var(--spacing) * 6);
+    padding-top: calc(var(--spacing) * 5);
+    border-top: 1px solid var(--color-base-stroke);
+}
+
+.cms-menu-tree__head {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    margin-bottom: calc(var(--spacing) * 2);
+}
+
+.cms-menu-tree__title {
+    font-weight: 600;
+}
+
+.cms-menu-tree__hint {
+    font-size: var(--text-xs);
+    color: var(--color-base-700);
+    margin-bottom: calc(var(--spacing) * 3);
+}
+
+.cms-menu-tree__error {
+    margin-bottom: calc(var(--spacing) * 3);
+}
+
+.cms-menu-tree__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.cms-menu-tree__list--nested {
+    margin-left: calc(var(--spacing) * 7);
+    /* An empty list of a root row is still a place to drop into. */
+    min-height: calc(var(--spacing) * 3);
+}
+
+.cms-menu-tree__item {
+    margin-bottom: calc(var(--spacing) * 2);
+}
+
+.cms-menu-tree__item--ghost .cms-menu-tree__row {
+    opacity: 0.5;
+    border-color: var(--color-primary);
+}
+
+.cms-menu-tree__row {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 3);
+    padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
+    border: 1px solid var(--color-base-stroke);
+    border-radius: var(--radius-lg);
+    background-color: var(--color-base);
+}
+
+.cms-menu-tree__row--inactive {
+    opacity: 0.6;
+}
+
+.cms-menu-tree__handle {
+    cursor: grab;
+    user-select: none;
+    color: var(--color-base-700);
+}
+
+.cms-menu-tree__label {
+    font-weight: 600;
+    color: var(--color-base-text);
+    text-decoration: none;
+}
+
+/* A button that reads as the caption it is: it opens the form of the item. */
+button.cms-menu-tree__label {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.cms-menu-tree__label:hover {
+    text-decoration: underline;
+}
+
+.cms-menu-tree__tail {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: calc(var(--spacing) * 2);
+}
+
+.cms-menu-tree__empty {
+    color: var(--color-base-700);
+}

@@ -1,0 +1,40 @@
+<?php
+
+declare(strict_types=1);
+
+return [
+    'appearance' => 'Site appearance',
+    'layouts' => 'Page appearance',
+    'headers' => 'Headers',
+    'footers' => 'Footers',
+    'header' => 'Header',
+    'footer' => 'Footer',
+    'header_title_new' => 'New header',
+    'header_title_edit' => 'Header: :name',
+    'footer_title_new' => 'New footer',
+    'footer_title_edit' => 'Footer: :name',
+    'layout_title_edit' => 'Appearance: :name',
+    'tab_main' => 'Main',
+    'tab_content' => 'Content',
+    'is_default' => 'Default',
+    'is_default_hint' => 'Pages that name no appearance of their own get this one.',
+    'container' => 'Container width',
+    'container_hint' => 'How wide the column with the content is.',
+    'containers' => [
+        'wide' => 'Wide',
+        'narrow' => 'Narrow',
+        'full' => 'Full width',
+    ],
+    'code_hint' => 'It reads in the admin address and survives renaming. Leave it empty and it is built from the name.',
+    'layout_code_hint' => 'Every code has a ready shell on the site, so no new codes are made up here.',
+    'layout_catalog_hint' => 'The set of appearances is declared by the code of the site. Here the ready ones are configured, no new ones are added.',
+    'layout_unknown' => 'Not in the set of the site',
+    'code_kebab' => 'A code takes lowercase latin letters, digits, hyphens and underscores only.',
+    'slot' => 'Place',
+    'slot_enabled' => 'Enabled',
+    'slots' => 'Menus in the header and the footer',
+    'header_slots' => 'Menus of the header',
+    'footer_slots' => 'Menus of the footer',
+    'slot_hint' => 'A place in the layout of the site. The list is ready made: a menu shows only where there is a place for it.',
+    'slots_hint' => 'Which menu is shown in each place of the header or the footer.',
+];
