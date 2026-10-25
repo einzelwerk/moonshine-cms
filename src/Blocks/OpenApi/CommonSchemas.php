@@ -44,8 +44,6 @@ final class CommonSchemas
 
     public const string ACCEPT_LANGUAGE = 'AcceptLanguage';
 
-    public const string SUBJECT_DATA = 'CmsSubjectData';
-
     public const string RESOLVE_EXTENSION = 'CmsResolveExtension';
 
     public static function ref(string $component): string
@@ -83,29 +81,8 @@ final class CommonSchemas
     public static function fallbackSchemas(): array
     {
         return [
-            self::subjectData(),
             self::resolveExtension(),
         ];
-    }
-
-    /**
-     * The entity of a template page as the presenter its type declares shows
-     * it. The core cannot know that shape — a presenter reuses the public
-     * resources of an installation — so what is declared here is an open
-     * object, and it is only added when the document does not already carry a
-     * definition of the name: an application that describes its own catalog
-     * lists its resources under `CmsSubjectData` itself, and the merge of the
-     * processor leaves that declaration alone.
-     */
-    private static function subjectData(): OA\Schema
-    {
-        return new OA\Schema(
-            schema: self::SUBJECT_DATA,
-            description: 'Сущность шаблонной страницы в виде, который отдаёт презентер её типа. '
-                .'Приложение объявляет компонент с этим именем, чтобы сузить его до своих публичных ресурсов.',
-            type: 'object',
-            additionalProperties: true,
-        );
     }
 
     /**
@@ -114,8 +91,7 @@ final class CommonSchemas
      * `ResolveContributor` of the pages, and the core cannot know them, so the
      * answer takes this component into its `allOf` and the placeholder here is
      * an open object with nothing required. An installation that writes keys of
-     * its own declares the component itself and lists them, exactly as it does
-     * with `CmsSubjectData`.
+     * its own declares the component itself and lists them.
      */
     private static function resolveExtension(): OA\Schema
     {

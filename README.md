@@ -461,6 +461,7 @@ fact; the slots of the menus are written the same way. With `darkaonline/l5-swag
     'processors' => [
         // By class name: the configuration has to survive `config:cache`.
         \Ewk\Cms\Blocks\OpenApi\CmsSchemasProcessor::class,
+        \Ewk\Cms\Pages\OpenApi\SubjectSchemasProcessor::class,
         \Ewk\Cms\Layouts\OpenApi\MenuSlotsProcessor::class,
     ],
 ],
@@ -479,12 +480,28 @@ fact; the slots of the menus are written the same way. With `darkaonline/l5-swag
 | `CmsResolveResponse`, `CmsBlockResponse` | the answers of the pages |
 | `Chrome`, `ChromeLayout`, `ChromePart`, `ChromeMenu`, `ChromeMenuItem` | the chrome |
 | `CmsMetadata`, `CmsJsonLd`, `CmsSitemapFile`, `CmsSitemapEntry` | the SEO part |
-| `CmsSubjectData`, `CmsResolveExtension` | open placeholders an installation replaces by declaring a component of the same name: the union of its public resources, and the keys its own contributors write |
+| `BlockSubject`, `BlockSubject<Studly>` | the entity of a template page: `oneOf` of one variant per template type, `discriminator` on `type`; the resolver adds `slug` to it |
+| `CmsSubjectData` | `anyOf` of the components the presenters describe; an installation may declare it itself |
+| `CmsResolveExtension` | an open placeholder an installation replaces by declaring a component of the same name: the keys its own contributors write |
 
 The `code` of every variant is a single-value enum, because a generated client narrows by
 that literal and not by `discriminator`. A resource whose payload its fields cannot show
-implements `DescribesPayloadSchema` with a static `payloadSchema()`. A component name
+implements `DescribesPayloadSchema` with a static `payloadSchema()`. A presenter of a subject
+implements `DescribesSubjectSchema` with a static `subjectSchema()` that names the component
+of its `data`; a presenter that does not is described as an open object. A component name
 already taken by another definition is a `LogicException`, not a merge.
+
+```php
+final readonly class TourPresenter implements SubjectPresenter, DescribesSubjectSchema
+{
+    public static function subjectSchema(): string
+    {
+        return 'TourListResource';
+    }
+
+    public function present(Model $subject, Request $request): array { /* … */ }
+}
+```
 
 ## The admin in MoonShine
 

@@ -399,15 +399,15 @@ it('fills in an open schema only where the document declares none', function (st
     expect($found)->not->toBeNull()
         ->and($found->type)->toBe('object')
         ->and($found->additionalProperties)->toBeTrue();
-})->with([CommonSchemas::SUBJECT_DATA, CommonSchemas::RESOLVE_EXTENSION]);
+})->with([CommonSchemas::RESOLVE_EXTENSION]);
 
-it('leaves a CmsSubjectData of the application alone instead of refusing it', function (): void {
+it('leaves a CmsResolveExtension of the application alone instead of refusing it', function (): void {
     $openapi = cmsDocument();
     $openapi->components = new OA\Components(['_context' => $openapi->_context]);
     $declared = new OA\Schema([
         '_context' => $openapi->_context,
-        'schema' => CommonSchemas::SUBJECT_DATA,
-        'anyOf' => [new OA\Schema(['_context' => $openapi->_context, 'ref' => '#/components/schemas/TourListResource'])],
+        'schema' => CommonSchemas::RESOLVE_EXTENSION,
+        'required' => ['integration'],
     ]);
     $openapi->components->schemas = [$declared];
 
@@ -415,7 +415,7 @@ it('leaves a CmsSubjectData of the application alone instead of refusing it', fu
 
     $found = array_values(array_filter(
         $openapi->components->schemas,
-        static fn (OA\Schema $schema): bool => (string) $schema->schema === CommonSchemas::SUBJECT_DATA,
+        static fn (OA\Schema $schema): bool => (string) $schema->schema === CommonSchemas::RESOLVE_EXTENSION,
     ));
 
     expect($found)->toHaveCount(1)

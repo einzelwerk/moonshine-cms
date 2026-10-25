@@ -18,10 +18,6 @@ use OpenApi\Attributes as OA;
  * are therefore optional here: without a contributor the answer goes without
  * the keys rather than with empty ones.
  *
- * `subject.data` points at `CmsSubjectData`, which an installation declares as
- * the union of its own public resources; without such a declaration the
- * processor of the blocks adds an open object under that name.
- *
  * The keys an application writes with a contributor of its own live in
  * `CmsResolveExtension`, which the answer takes into its `allOf`: the same
  * arrangement, an open placeholder unless the installation declares the name.
@@ -57,20 +53,19 @@ use OpenApi\Attributes as OA;
                 ),
                 new OA\Property(
                     property: 'subject',
-                    description: 'Сущность шаблонного адреса; `null` на обычной странице. `data` отдаёт презентер, '
-                        .'объявленный типом страницы: тип страницы знает, чем он адресуется, ядро — нет.',
-                    required: ['type', 'slug', 'data'],
-                    properties: [
-                        new OA\Property(property: 'type', description: 'Ключ типа страницы, которому принадлежит субъект', type: 'string'),
-                        new OA\Property(property: 'slug', type: 'string'),
-                        // An extension point: the application declares
-                        // `CmsSubjectData` as the union of its public
-                        // resources, otherwise the processor of the blocks
-                        // puts an open object there.
-                        new OA\Property(property: 'data', ref: '#/components/schemas/CmsSubjectData'),
-                    ],
+                    description: 'Сущность шаблонного адреса; null на обычной странице',
                     type: 'object',
                     nullable: true,
+                    allOf: [
+                        new OA\Schema(ref: '#/components/schemas/BlockSubject'),
+                        new OA\Schema(
+                            required: ['slug'],
+                            properties: [
+                                new OA\Property(property: 'slug', description: 'Slug для URL', type: 'string'),
+                            ],
+                            type: 'object',
+                        ),
+                    ],
                 ),
                 new OA\Property(
                     property: 'blocks',
