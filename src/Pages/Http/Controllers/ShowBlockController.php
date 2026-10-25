@@ -40,6 +40,7 @@ use OpenApi\Attributes as OA;
         .'отбрасывается, недопустимое значение — 422.',
     summary: 'Данные одного блока',
     tags: ['CMS'],
+    security: [],
     parameters: [
         new OA\Parameter(
             name: 'uuid',

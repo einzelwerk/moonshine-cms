@@ -23,6 +23,7 @@ use OpenApi\Attributes as OA;
         .'языка — только источник (`event-1`). Ответ не зависит от языка запроса.',
     summary: 'Файлы карты сайта',
     tags: ['CMS'],
+    security: [],
     responses: [
         new OA\Response(
             response: 200,

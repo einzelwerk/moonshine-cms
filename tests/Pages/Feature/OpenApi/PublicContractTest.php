@@ -23,6 +23,27 @@ function publicContract(): array
     return is_array($document) ? $document : [];
 }
 
+it('declares every operation of the package public with an empty security list', function (): void {
+    $operations = [];
+
+    foreach (publicContract()['paths'] as $item) {
+        foreach ($item as $operation) {
+            $operations[$operation['operationId']] = $operation['security'] ?? null;
+        }
+    }
+
+    ksort($operations);
+
+    expect($operations)->toBe([
+        'CmsChromeV1' => [],
+        'CmsMenuV1' => [],
+        'CmsResolveV1' => [],
+        'CmsShowBlockV1' => [],
+        'CmsSitemapFileV1' => [],
+        'CmsSitemapIndexV1' => [],
+    ]);
+});
+
 it('declares the subject of the resolver as a nullable reference to one component', function (): void {
     $schemas = publicContract()['components']['schemas'];
 

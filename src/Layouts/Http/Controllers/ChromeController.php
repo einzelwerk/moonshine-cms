@@ -29,6 +29,7 @@ use OpenApi\Attributes as OA;
     description: 'Ответ одинаков для всех посетителей.',
     summary: 'Обвязка сайта',
     tags: ['CMS'],
+    security: [],
     parameters: [
         new OA\Parameter(ref: '#/components/parameters/AcceptLanguage'),
     ],

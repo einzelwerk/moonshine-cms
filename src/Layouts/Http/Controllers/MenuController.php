@@ -27,6 +27,7 @@ use OpenApi\Attributes as OA;
     description: 'Выключенное меню отвечает 404, как несуществующее.',
     summary: 'Меню по коду',
     tags: ['CMS'],
+    security: [],
     parameters: [
         new OA\Parameter(
             name: 'code',

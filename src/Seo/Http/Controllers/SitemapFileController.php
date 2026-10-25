@@ -23,6 +23,7 @@ use OpenApi\Attributes as OA;
     description: 'Записи в форме `MetadataRoute.Sitemap` Next: абсолютные адреса с языком и языковые версии с `x-default`.',
     summary: 'Файл карты сайта',
     tags: ['CMS'],
+    security: [],
     parameters: [
         new OA\Parameter(
             name: 'id',

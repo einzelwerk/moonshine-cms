@@ -38,6 +38,7 @@ use OpenApi\Attributes as OA;
     description: 'Отдаётся опубликованный снимок страницы; черновик — 404.',
     summary: 'Разрешение адреса',
     tags: ['CMS'],
+    security: [],
     parameters: [
         new OA\Parameter(
             name: 'path',
