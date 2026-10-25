@@ -55,8 +55,8 @@ final readonly class ChromeDocument
      * @return array{
      *     locale: string,
      *     layouts: list<array{code: string, name: string, container: string|null, body_class: string|null, is_default: bool, header: string|null, footer: string|null}>,
-     *     headers: list<array{code: string, name: string, content: array<string, mixed>, slots: array<string, list<string>>|stdClass}>,
-     *     footers: list<array{code: string, name: string, content: array<string, mixed>, slots: array<string, list<string>>|stdClass}>,
+     *     headers: list<array{code: string, name: string, content: non-empty-array<string, mixed>|stdClass, slots: array<string, list<string>>|stdClass}>,
+     *     footers: list<array{code: string, name: string, content: non-empty-array<string, mixed>|stdClass, slots: array<string, list<string>>|stdClass}>,
      *     menus: list<array{code: string, name: string, source: string, items: list<array<string, mixed>>}>
      * }
      */
@@ -242,7 +242,7 @@ final readonly class ChromeDocument
      * payload is: every declared field converts its own stored value.
      *
      * @param  array<int, string>  $menuCodeById  codes of the menus this document delivers
-     * @return array{code: string, name: string, content: array<string, mixed>, slots: array<string, list<string>>|stdClass}
+     * @return array{code: string, name: string, content: non-empty-array<string, mixed>|stdClass, slots: array<string, list<string>>|stdClass}
      */
     private function chromeEntry(CmsHeader|CmsFooter $record, array $menuCodeById, string $locale, string $fallbackLocale): array
     {
@@ -258,16 +258,18 @@ final readonly class ChromeDocument
             $slots[$assignment->slot][] = $code;
         }
 
+        $content = $this->content->toPayload(
+            is_array($record->content) ? $record->content : [],
+            $this->schemas->schemaFor($record->chromeKind()),
+            $locale,
+            $fallbackLocale,
+            $this->linkResolvers,
+        );
+
         return [
             'code' => $record->code,
             'name' => LocalizedValueResolver::resolve($record->name, $locale, $fallbackLocale),
-            'content' => $this->content->toPayload(
-                is_array($record->content) ? $record->content : [],
-                $this->schemas->schemaFor($record->chromeKind()),
-                $locale,
-                $fallbackLocale,
-                $this->linkResolvers,
-            ),
+            'content' => $content === [] ? new stdClass() : $content,
             // An object and not an empty array: the frontend reads `slots` as
             // a map of slot code to menu codes, and an empty PHP array would
             // encode as `[]`.

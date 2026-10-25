@@ -70,3 +70,12 @@ it('fetches a single menu by its code and answers 404 for an unknown or switched
 
     $this->getJson('/api/v1/menus/legal')->assertNotFound();
 });
+
+it('sends the content of a part without declared fields as an empty object', function (): void {
+    app()->instance(ChromeSchemaRegistry::class, new ChromeSchemaRegistry());
+
+    Make::layout(default: true, header: Make::header());
+
+    expect($this->getJson('/api/v1/chrome')->assertOk()->getContent())
+        ->toContain('"content":{}');
+});
