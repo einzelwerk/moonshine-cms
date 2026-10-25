@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/). Until
 `1.0.0` a minor version may contain breaking changes.
 
+## Unreleased
+
+### Breaking
+
+- `CmsResolveResponse.subject` refers to the new component `CmsResolveSubject`
+  (`BlockSubject` plus `slug`) as `type: object, nullable: true, allOf: [$ref]`. The wire
+  is unchanged; a generated client gets `CmsResolveSubject | null` and loses the inline
+  `CmsResolveResponseSubject` type.
+
+### Fixed
+
+- `variant` of a block envelope is `nullable: true` with the enum of the declared
+  variants; `null` is no longer listed inside the `enum`.
+- The operations of the package (`CmsChromeV1`, `CmsMenuV1`, `CmsResolveV1`,
+  `CmsShowBlockV1`, `CmsSitemapIndexV1`, `CmsSitemapFileV1`) declare `security: []`.
+
+### Added
+
+- `PageSecurityProcessor` and `cms-pages.openapi.security` (default `[]`): the security
+  requirements of `CmsResolveV1` and `CmsShowBlockV1`, whose blocks may tailor the
+  answer to the visitor. An installation lists the identity as optional in its own
+  scheme names, `[[], ['clientUuid' => []]]`, and registers the processor in
+  `l5-swagger.scanOptions.processors`; a scheme the document does not declare is a
+  `LogicException`.
+
+### Changed
+
+- Every reference of the contract carries a description, wrapped into `allOf`: `data`
+  and `children` of the block envelopes, `pagination` and `filters` of a payload (also
+  through `BlockSchemaGenerator::paginationProperty()`), `data` of the subject variants,
+  `CmsBlockResponse.data` and `data` of the chrome, menu, resolver and sitemap answers.
+  `CmsMetadata.openGraph` is described in Russian.
+
 ## 0.2.1 — 2026-10-25
 
 ### Fixed
