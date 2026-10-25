@@ -7,6 +7,7 @@ namespace Ewk\Cms\Pages\Types;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use stdClass;
 
 /**
  * The one way an entity of a template page reaches an answer: the type declares
@@ -42,7 +43,7 @@ final readonly class SubjectPresentation
      * an entity no declared type stands for — a block must then answer without
      * a subject rather than with an invented one.
      *
-     * @return array{type: string, data: array<string, mixed>}|null
+     * @return array{type: string, data: non-empty-array<string, mixed>|stdClass}|null
      */
     public function payload(?Model $subject, Request $request): ?array
     {
@@ -56,7 +57,9 @@ final readonly class SubjectPresentation
             return null;
         }
 
-        return ['type' => $type->key(), 'data' => $this->data($type, $subject, $request)];
+        $data = $this->data($type, $subject, $request);
+
+        return ['type' => $type->key(), 'data' => $data === [] ? new stdClass() : $data];
     }
 
     /**

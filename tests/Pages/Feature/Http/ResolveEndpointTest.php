@@ -150,11 +150,12 @@ it('answers with an empty subject payload when the type declares no presenter', 
     resolvableBlock($template);
     publishForResolve($template);
 
-    $this->getJson('/api/v1/resolve?path=/recitals/solo')
+    $response = $this->getJson('/api/v1/resolve?path=/recitals/solo')
         ->assertOk()
         ->assertJsonPath('data.subject.type', 'recital')
-        ->assertJsonPath('data.subject.slug', 'solo')
-        ->assertJsonPath('data.subject.data', []);
+        ->assertJsonPath('data.subject.slug', 'solo');
+
+    expect($response->getContent())->toContain('"subject":{"type":"recital","slug":"solo","data":{}}');
 });
 
 it('reports a language prefix with 400 instead of hiding it behind a 404', function (): void {

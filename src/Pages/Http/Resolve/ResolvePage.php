@@ -19,6 +19,7 @@ use Ewk\Cms\Pages\Types\SubjectPresentation;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Translation\Translator;
 use Illuminate\Http\Request;
+use stdClass;
 
 /**
  * The service behind `GET /api/v1/resolve`: an address and a query string in,
@@ -189,7 +190,7 @@ final readonly class ResolvePage
      * an empty `data`: the address did resolve to an entity, and the frontend
      * must not have to guess whether it did.
      *
-     * @return array{type: string, slug: string, data: array<string, mixed>}|null
+     * @return array{type: string, slug: string, data: non-empty-array<string, mixed>|stdClass}|null
      */
     private function subjectOf(ResolvedPath $resolved, Request $request): ?array
     {
@@ -203,10 +204,12 @@ final readonly class ResolvePage
         $declared = $type->subject();
         $slug = $subject->getAttribute($declared instanceof Subject ? $declared->slugColumn : 'slug');
 
+        $data = $this->subjects->data($type, $subject, $request);
+
         return [
             'type' => $type->key(),
             'slug' => is_scalar($slug) ? (string) $slug : '',
-            'data' => $this->subjects->data($type, $subject, $request),
+            'data' => $data === [] ? new stdClass() : $data,
         ];
     }
 }

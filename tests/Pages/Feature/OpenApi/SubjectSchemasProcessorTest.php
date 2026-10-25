@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 use Ewk\Cms\Pages\OpenApi\SubjectSchemaGenerator;
 use Ewk\Cms\Pages\OpenApi\SubjectSchemasProcessor;
+use Ewk\Cms\Pages\Tests\Fixtures\Make;
 use Ewk\Cms\Pages\Tests\Fixtures\TestPageTypes;
 use Ewk\Cms\Pages\Types\PageTypeRegistry;
+use Ewk\Cms\Pages\Types\SubjectPresentation;
+use Illuminate\Http\Request;
 use OpenApi\Analysis;
 use OpenApi\Annotations as OA;
 use OpenApi\Context;
@@ -75,17 +78,17 @@ it('makes BlockSubject a union of the template types discriminated by type', fun
         ->and($schemas['BlockSubjectGig']['properties']['data'])->toBe(['$ref' => '#/components/schemas/ConcertResource'])
         ->and($schemas['BlockSubjectRecital']['properties']['type']['enum'])->toBe(['recital'])
         ->and($schemas['BlockSubjectRecital']['properties']['data']['type'])->toBe('object')
-        ->and($schemas['BlockSubjectRecital']['properties']['data']['additionalProperties'])->toBeTrue();
+        ->and($schemas['BlockSubjectRecital']['properties']['data']['additionalProperties'])->toBeFalse();
 });
 
-it('lists the described presenters in CmsSubjectData and keeps it open for the rest', function (): void {
+it('lists the described presenters in CmsSubjectData and an empty object for a type without one', function (): void {
     subjectTypes();
 
     $data = subjectProcessed(subjectDocument())[SubjectSchemaGenerator::SUBJECT_DATA];
 
     expect($data['anyOf'])->toBe([
         ['$ref' => '#/components/schemas/ConcertResource'],
-        ['type' => 'object', 'additionalProperties' => true],
+        ['type' => 'object', 'additionalProperties' => false],
     ]);
 });
 
@@ -124,4 +127,12 @@ it('refuses a BlockSubject the application declares with another shape', functio
 
     expect(fn (): array => subjectProcessed($openapi))
         ->toThrow(LogicException::class, SubjectSchemaGenerator::SUBJECT);
+});
+
+it('hands a block the subject of a type without a presenter with an empty object', function (): void {
+    app(PageTypeRegistry::class)->register(TestPageTypes::recital());
+
+    $payload = app(SubjectPresentation::class)->payload(Make::concert('jazz', 'solo'), Request::create('/'));
+
+    expect(json_encode($payload))->toBe('{"type":"recital","data":{}}');
 });
