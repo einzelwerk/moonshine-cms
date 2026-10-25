@@ -7,11 +7,16 @@ use Ewk\Cms\Blocks\Blocks\SharedInsertionBlock;
 use Ewk\Cms\Blocks\Blocks\TextBlock;
 use Ewk\Cms\Blocks\Blocks\TocBlock;
 use Ewk\Cms\Blocks\Contracts\BlockRegistryInterface;
+use Ewk\Cms\Blocks\Links\Actions\ActionRegistry;
+use Ewk\Cms\Blocks\Links\Link;
+use Ewk\Cms\Blocks\Links\LinkKind;
+use Ewk\Cms\Blocks\Links\LinkResolverRegistry;
 use Ewk\Cms\Blocks\OpenApi\BlockSchemaGenerator;
 use Ewk\Cms\Blocks\OpenApi\CmsSchemasProcessor;
 use Ewk\Cms\Blocks\OpenApi\CommonSchemas;
 use Ewk\Cms\Blocks\Rendering\BlockRenderer;
 use Ewk\Cms\Blocks\Tests\Fixtures\BlockOwner;
+use Ewk\Cms\Blocks\Tests\Fixtures\BuyAction;
 use Ewk\Cms\Blocks\Tests\Fixtures\CatalogBlock;
 use Ewk\Cms\Blocks\Tests\Fixtures\CursorFeedBlock;
 use Ewk\Cms\Blocks\Tests\Fixtures\FeedBlock;
@@ -420,4 +425,20 @@ it('leaves a CmsResolveExtension of the application alone instead of refusing it
 
     expect($found)->toHaveCount(1)
         ->and($found[0])->toBe($declared);
+});
+
+it('describes the action of a link as the keys the resolver hands out', function (): void {
+    app(ActionRegistry::class)->register(new BuyAction());
+
+    $action = cmsPropertyOf(cmsCommon()[CommonSchemas::LINK], 'action');
+    $resolved = app(LinkResolverRegistry::class)
+        ->resolve(new Link(LinkKind::ACTION, ['action' => 'buy', 'params' => ['event' => 'icegergert']]), 'ru')
+        ->toArray()['action'];
+
+    expect($action->type)->toBe('object')
+        ->and($action->nullable)->toBeTrue()
+        ->and($action->required)->toBe(['name', 'params'])
+        ->and(cmsPropertyOf($action, 'name')->type)->toBe('string')
+        ->and(cmsPropertyOf($action, 'params')->type)->toBe('object')
+        ->and(array_keys((array) $resolved))->toBe($action->required);
 });

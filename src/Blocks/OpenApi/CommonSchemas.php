@@ -259,7 +259,22 @@ final class CommonSchemas
                 new OA\Property(property: 'href', type: 'string', nullable: true),
                 new OA\Property(property: 'external', type: 'boolean'),
                 new OA\Property(property: 'new_tab', type: 'boolean'),
-                new OA\Property(property: 'action', type: 'object', nullable: true, additionalProperties: true),
+                new OA\Property(
+                    property: 'action',
+                    description: 'Действие фронта; null у ссылки другого вида',
+                    required: ['name', 'params'],
+                    properties: [
+                        new OA\Property(property: 'name', description: 'Код действия', type: 'string'),
+                        new OA\Property(
+                            property: 'params',
+                            description: 'Параметры действия',
+                            type: 'object',
+                            additionalProperties: true,
+                        ),
+                    ],
+                    type: 'object',
+                    nullable: true,
+                ),
             ],
             type: 'object',
         );
