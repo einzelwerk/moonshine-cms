@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/). Until
 `1.0.0` a minor version may contain breaking changes.
 
+## Unreleased
+
+### Fixed
+
+- `subject.data` of a template type without a presenter leaves as `{}` instead of `[]`,
+  from the resolver and from `SubjectPresentation::payload()`; the subject itself stays,
+  so the client still narrows by `type`. The `BlockSubject<Studly>` variant of such a
+  type describes `data` as an object without keys, and `CmsSubjectData` lists it so.
+- `ChromePart.content` of a header or a footer without declared fields leaves as `{}`.
+
+### Changed
+
+- Every property generated from a declared field carries a description: the help, else
+  the label, followed by the note of its format (`HTML на языке ответа`); a field with
+  neither is described as `Поле <name>`.
+
 ## 0.2.0 — 2026-10-25
 
 ### Breaking
