@@ -7,6 +7,10 @@ use Ewk\Cms\Blocks\Blocks\SharedInsertionBlock;
 use Ewk\Cms\Blocks\Blocks\TextBlock;
 use Ewk\Cms\Blocks\Blocks\TocBlock;
 use Ewk\Cms\Blocks\Contracts\BlockRegistryInterface;
+use Ewk\Cms\Blocks\Fields\Field;
+use Ewk\Cms\Blocks\Fields\GroupField;
+use Ewk\Cms\Blocks\Fields\RichTextField;
+use Ewk\Cms\Blocks\Fields\TextField;
 use Ewk\Cms\Blocks\Links\Actions\ActionRegistry;
 use Ewk\Cms\Blocks\Links\Link;
 use Ewk\Cms\Blocks\Links\LinkKind;
@@ -14,6 +18,7 @@ use Ewk\Cms\Blocks\Links\LinkResolverRegistry;
 use Ewk\Cms\Blocks\OpenApi\BlockSchemaGenerator;
 use Ewk\Cms\Blocks\OpenApi\CmsSchemasProcessor;
 use Ewk\Cms\Blocks\OpenApi\CommonSchemas;
+use Ewk\Cms\Blocks\OpenApi\FieldSchemaMapper;
 use Ewk\Cms\Blocks\Rendering\BlockRenderer;
 use Ewk\Cms\Blocks\Tests\Fixtures\BlockOwner;
 use Ewk\Cms\Blocks\Tests\Fixtures\BuyAction;
@@ -454,3 +459,20 @@ it('constrains the code of every refusal of the CMS', function (string $componen
     'a refusal' => [CommonSchemas::ERROR, ['bad_request', 'not_found', 'too_many_requests']],
     'a validation refusal' => [CommonSchemas::VALIDATION_ERROR, ['validation_failed']],
 ]);
+
+it('describes every generated field by its help, then its label, keeping the note of its format', function (Field $field, string $description): void {
+    expect((new FieldSchemaMapper())->property($field)->description)->toBe($description);
+})->with([
+    'a label' => [TextField::make('title')->label('Заголовок'), 'Заголовок'],
+    'help over a label' => [TextField::make('title')->label('Заголовок')->help('Пусто — подпись по умолчанию'), 'Пусто — подпись по умолчанию'],
+    'a label and a format' => [RichTextField::make('body')->label('Текст'), 'Текст. HTML на языке ответа'],
+    'a format alone' => [RichTextField::make('body'), 'HTML на языке ответа'],
+    'nothing at all' => [TextField::make('title'), 'Поле title'],
+    'a nested field' => [GroupField::make('cta')->label('Кнопка')->fields([TextField::make('text')->label('Подпись')]), 'Кнопка'],
+]);
+
+it('describes the fields inside a group', function (): void {
+    $group = (new FieldSchemaMapper())->property(GroupField::make('cta')->fields([TextField::make('text')->label('Подпись')]));
+
+    expect(cmsPropertyOf($group, 'text')->description)->toBe('Подпись');
+});

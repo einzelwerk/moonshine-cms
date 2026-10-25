@@ -38,12 +38,15 @@ final class FieldSchemaMapper
     public function property(Field $field): OA\Property
     {
         $property = $this->describe($field, $field->name());
+        $caption = self::caption($field);
+        $note = Undefined::isDefault($property->description) ? null : (string) $property->description;
 
-        $help = $field->getHelp();
-
-        if ($help !== null && Undefined::isDefault($property->description)) {
-            $property->description = $help;
-        }
+        $property->description = match (true) {
+            $caption !== null && $note !== null => $caption.'. '.$note,
+            $caption !== null => $caption,
+            $note !== null => $note,
+            default => 'Поле '.$field->name(),
+        };
 
         return $property;
     }
@@ -122,8 +125,8 @@ final class FieldSchemaMapper
                 property: $name,
                 required: ['lat', 'lng'],
                 properties: [
-                    new OA\Property(property: 'lat', type: 'number', format: 'float'),
-                    new OA\Property(property: 'lng', type: 'number', format: 'float'),
+                    new OA\Property(property: 'lat', description: 'Широта', type: 'number', format: 'float'),
+                    new OA\Property(property: 'lng', description: 'Долгота', type: 'number', format: 'float'),
                 ],
                 type: 'object',
                 nullable: $this->nullable($field),
@@ -139,6 +142,17 @@ final class FieldSchemaMapper
                 nullable: true,
             ),
         };
+    }
+
+    private static function caption(Field $field): ?string
+    {
+        foreach ([$field->getHelp(), $field->getLabel()] as $text) {
+            if ($text !== null && trim($text) !== '') {
+                return trim($text);
+            }
+        }
+
+        return null;
     }
 
     /**
