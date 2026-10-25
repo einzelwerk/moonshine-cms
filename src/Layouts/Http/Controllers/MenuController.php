@@ -52,7 +52,7 @@ use OpenApi\Attributes as OA;
             content: new OA\JsonContent(
                 required: ['data'],
                 properties: [
-                    new OA\Property(property: 'data', ref: '#/components/schemas/ChromeMenu'),
+                    new OA\Property(property: 'data', description: 'Меню', allOf: [new OA\Schema(ref: '#/components/schemas/ChromeMenu')]),
                 ],
             ),
         ),

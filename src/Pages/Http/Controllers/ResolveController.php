@@ -75,7 +75,7 @@ use OpenApi\Attributes as OA;
             content: new OA\JsonContent(
                 required: ['data'],
                 properties: [
-                    new OA\Property(property: 'data', ref: '#/components/schemas/CmsResolveResponse'),
+                    new OA\Property(property: 'data', description: 'Разрешённый адрес', allOf: [new OA\Schema(ref: '#/components/schemas/CmsResolveResponse')]),
                 ],
             ),
         ),

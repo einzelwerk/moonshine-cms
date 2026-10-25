@@ -33,6 +33,7 @@ use OpenApi\Attributes as OA;
                 properties: [
                     new OA\Property(
                         property: 'data',
+                        description: 'Файлы карты сайта',
                         type: 'array',
                         items: new OA\Items(ref: '#/components/schemas/CmsSitemapFile'),
                     ),

@@ -42,6 +42,7 @@ use OpenApi\Attributes as OA;
                 properties: [
                     new OA\Property(
                         property: 'data',
+                        description: 'Записи файла карты сайта',
                         type: 'array',
                         items: new OA\Items(ref: '#/components/schemas/CmsSitemapEntry'),
                     ),

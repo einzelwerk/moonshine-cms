@@ -75,7 +75,10 @@ it('makes BlockSubject a union of the template types discriminated by type', fun
 
     expect($schemas['BlockSubjectGig']['required'])->toBe(['type', 'data'])
         ->and($schemas['BlockSubjectGig']['properties']['type']['enum'])->toBe(['gig'])
-        ->and($schemas['BlockSubjectGig']['properties']['data'])->toBe(['$ref' => '#/components/schemas/ConcertResource'])
+        ->and($schemas['BlockSubjectGig']['properties']['data'])->toBe([
+            'description' => 'Данные сущности',
+            'allOf' => [['$ref' => '#/components/schemas/ConcertResource']],
+        ])
         ->and($schemas['BlockSubjectRecital']['properties']['type']['enum'])->toBe(['recital'])
         ->and($schemas['BlockSubjectRecital']['properties']['data']['type'])->toBe('object')
         ->and($schemas['BlockSubjectRecital']['properties']['data']['additionalProperties'])->toBeFalse();
@@ -98,7 +101,10 @@ it('falls back to open schemas when no type has a subject', function (): void {
     $schemas = subjectProcessed(subjectDocument());
 
     expect($schemas[SubjectSchemaGenerator::SUBJECT]['properties']['data'])
-        ->toBe(['$ref' => '#/components/schemas/CmsSubjectData'])
+        ->toBe([
+            'description' => 'Данные сущности',
+            'allOf' => [['$ref' => '#/components/schemas/CmsSubjectData']],
+        ])
         ->and($schemas[SubjectSchemaGenerator::SUBJECT_DATA]['type'])->toBe('object')
         ->and($schemas[SubjectSchemaGenerator::SUBJECT_DATA]['additionalProperties'])->toBeTrue();
 });

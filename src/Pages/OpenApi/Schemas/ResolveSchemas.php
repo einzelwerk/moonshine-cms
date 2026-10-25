@@ -102,7 +102,7 @@ use OpenApi\Attributes as OA;
     description: 'Блок в том же конверте, что в `blocks` резолвера',
     required: ['data'],
     properties: [
-        new OA\Property(property: 'data', ref: '#/components/schemas/CmsBlock'),
+        new OA\Property(property: 'data', description: 'Блок', allOf: [new OA\Schema(ref: '#/components/schemas/CmsBlock')]),
     ],
     type: 'object',
 )]

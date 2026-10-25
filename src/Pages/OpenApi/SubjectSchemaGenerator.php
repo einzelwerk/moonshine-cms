@@ -130,7 +130,11 @@ final readonly class SubjectSchemaGenerator
     private static function dataProperty(PageType $type, ?string $component): OA\Property
     {
         if ($component !== null) {
-            return new OA\Property(property: 'data', ref: CommonSchemas::ref($component));
+            return new OA\Property(
+                property: 'data',
+                description: 'Данные сущности',
+                allOf: [new OA\Schema(ref: CommonSchemas::ref($component))],
+            );
         }
 
         if (! self::hasPresenter($type)) {
@@ -163,7 +167,11 @@ final readonly class SubjectSchemaGenerator
             required: ['type', 'data'],
             properties: [
                 new OA\Property(property: 'type', description: 'Ключ типа страницы', type: 'string'),
-                new OA\Property(property: 'data', ref: CommonSchemas::ref(self::SUBJECT_DATA)),
+                new OA\Property(
+                    property: 'data',
+                    description: 'Данные сущности',
+                    allOf: [new OA\Schema(ref: CommonSchemas::ref(self::SUBJECT_DATA))],
+                ),
             ],
             type: 'object',
         );

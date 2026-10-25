@@ -184,8 +184,10 @@ it('derives the payload of a static type from its declared fields', function ():
 it('adds the pagination and the filters to the payload of a dynamic type', function (): void {
     $data = cmsGenerated()['CatalogBlockData'];
 
-    expect(cmsPropertyOf($data, 'pagination')->ref)->toBe(CommonSchemas::ref(CommonSchemas::PAGINATION_PAGES));
-    expect(cmsPropertyOf($data, 'filters')->ref)->toBe(CommonSchemas::ref(CommonSchemas::FILTERS));
+    expect(cmsPropertyOf($data, 'pagination')->allOf[0]->ref)->toBe(CommonSchemas::ref(CommonSchemas::PAGINATION_PAGES))
+        ->and(cmsPropertyOf($data, 'pagination')->description)->toBe('Пагинация');
+    expect(cmsPropertyOf($data, 'filters')->allOf[0]->ref)->toBe(CommonSchemas::ref(CommonSchemas::FILTERS))
+        ->and(cmsPropertyOf($data, 'filters')->description)->toBe('Панель фильтров');
     expect($data->required)->toContain('pagination');
     // A block draws the panel only where there is something to narrow.
     expect($data->required)->not->toContain('filters');
@@ -291,11 +293,26 @@ it('describes the children of a container as a recursive map of slots', function
     expect((string) $children->additionalProperties->items->ref)
         ->toBe(CommonSchemas::ref(BlockSchemaGenerator::BLOCK));
 
-    expect(cmsPropertyOf(cmsGenerated()[BlockSchemaGenerator::envelopeName(ColumnsBlock::code())], 'children')->ref)
+    expect(cmsPropertyOf(cmsGenerated()[BlockSchemaGenerator::envelopeName(ColumnsBlock::code())], 'children')->allOf[0]->ref)
         ->toBe(CommonSchemas::ref(BlockSchemaGenerator::CHILDREN));
 
-    expect(cmsPropertyOf(cmsGenerated()[BlockSchemaGenerator::envelopeName(TocBlock::code())], 'children')->ref)
+    expect(cmsPropertyOf(cmsGenerated()[BlockSchemaGenerator::envelopeName(TocBlock::code())], 'children')->allOf[0]->ref)
         ->toBe(CommonSchemas::ref(BlockSchemaGenerator::CHILDREN));
+});
+
+it('describes the data and the children of every envelope next to their references', function (): void {
+    foreach (cmsGenerator()->codes() as $code) {
+        $envelope = cmsGenerated()[BlockSchemaGenerator::envelopeName($code)];
+        $data = cmsPropertyOf($envelope, 'data');
+        $children = cmsPropertyOf($envelope, 'children');
+
+        expect(Undefined::isDefault($data->ref))->toBeTrue()
+            ->and($data->allOf[0]->ref)->toBe(CommonSchemas::ref(BlockSchemaGenerator::payloadName($code)))
+            ->and($data->description)->toBe('Данные блока')
+            ->and(Undefined::isDefault($children->ref))->toBeTrue()
+            ->and($children->allOf[0]->ref)->toBe(CommonSchemas::ref(BlockSchemaGenerator::CHILDREN))
+            ->and($children->description)->toBe('Дочерние блоки по слотам');
+    }
 });
 
 it('declares the variant as a nullable enumeration of the variants without null', function (): void {
@@ -372,7 +389,7 @@ it('narrows the pagination of a payload to the modes the schema allows', functio
     expect($switchable->discriminator->propertyName)->toBe('mode');
 
     // A fixed mode is a shape of its own, one branch fewer.
-    expect(cmsPropertyOf(cmsGenerated()['CatalogBlockData'], 'pagination')->ref)
+    expect(cmsPropertyOf(cmsGenerated()['CatalogBlockData'], 'pagination')->allOf[0]->ref)
         ->toBe(CommonSchemas::ref(CommonSchemas::PAGINATION_PAGES));
 });
 

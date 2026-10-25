@@ -47,7 +47,7 @@ use OpenApi\Attributes as OA;
             content: new OA\JsonContent(
                 required: ['data'],
                 properties: [
-                    new OA\Property(property: 'data', ref: '#/components/schemas/Chrome'),
+                    new OA\Property(property: 'data', description: 'Обвязка сайта', allOf: [new OA\Schema(ref: '#/components/schemas/Chrome')]),
                 ],
             ),
         ),

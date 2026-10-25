@@ -165,8 +165,16 @@ final readonly class BlockSchemaGenerator
                     type: 'string',
                     nullable: true,
                 ),
-                new OA\Property(property: 'data', ref: CommonSchemas::ref(self::payloadName($code))),
-                new OA\Property(property: 'children', ref: CommonSchemas::ref(self::CHILDREN)),
+                new OA\Property(
+                    property: 'data',
+                    description: 'Данные блока',
+                    allOf: [new OA\Schema(ref: CommonSchemas::ref(self::payloadName($code)))],
+                ),
+                new OA\Property(
+                    property: 'children',
+                    description: 'Дочерние блоки по слотам',
+                    allOf: [new OA\Schema(ref: CommonSchemas::ref(self::CHILDREN))],
+                ),
             ],
             type: 'object',
         );
@@ -217,7 +225,8 @@ final readonly class BlockSchemaGenerator
             // something to narrow.
             $properties[] = new OA\Property(
                 property: 'filters',
-                ref: CommonSchemas::ref(CommonSchemas::FILTERS),
+                description: 'Панель фильтров',
+                allOf: [new OA\Schema(ref: CommonSchemas::ref(CommonSchemas::FILTERS))],
             );
         }
 
@@ -245,24 +254,15 @@ final readonly class BlockSchemaGenerator
         // A type without a declared continuation answers `{mode: 'none'}`:
         // the key is in the payload, with a single branch.
         if ($pagination === null) {
-            return new OA\Property(
-                property: 'pagination',
-                ref: CommonSchemas::ref(CommonSchemas::PAGINATION_NONE),
-            );
+            return self::describedPagination(CommonSchemas::PAGINATION_NONE);
         }
 
         if (! $pagination->modeEditable) {
-            return new OA\Property(
-                property: 'pagination',
-                ref: CommonSchemas::ref(self::paginationComponent($pagination->mode)),
-            );
+            return self::describedPagination(self::paginationComponent($pagination->mode));
         }
 
         if ($pagination->allowedModes === []) {
-            return new OA\Property(
-                property: 'pagination',
-                ref: CommonSchemas::ref(CommonSchemas::PAGINATION),
-            );
+            return self::describedPagination(CommonSchemas::PAGINATION);
         }
 
         $mapping = [];
@@ -279,6 +279,15 @@ final readonly class BlockSchemaGenerator
             description: 'Пагинация; режим выбирает редактор из разрешённых схемой',
             discriminator: new OA\Discriminator(propertyName: 'mode', mapping: $mapping),
             oneOf: $variants,
+        );
+    }
+
+    private static function describedPagination(string $component): OA\Property
+    {
+        return new OA\Property(
+            property: 'pagination',
+            description: 'Пагинация',
+            allOf: [new OA\Schema(ref: CommonSchemas::ref($component))],
         );
     }
 

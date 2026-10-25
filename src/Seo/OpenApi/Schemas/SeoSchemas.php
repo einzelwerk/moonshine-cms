@@ -38,7 +38,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'openGraph',
-            description: 'Open Graph',
+            description: 'Разметка Open Graph',
             required: ['title', 'description', 'type', 'images'],
             properties: [
                 new OA\Property(property: 'title', description: 'Заголовок', type: 'string', nullable: true),
