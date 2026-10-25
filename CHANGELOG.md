@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/). Until
 `1.0.0` a minor version may contain breaking changes.
 
-## Unreleased
+## 0.2.2 — 2026-10-25
 
 ### Breaking
 
