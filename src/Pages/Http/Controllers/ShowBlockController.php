@@ -35,14 +35,9 @@ use OpenApi\Attributes as OA;
 #[OA\Get(
     path: '/v1/blocks/{uuid}',
     operationId: 'CmsShowBlockV1',
-    description: 'Данные одного блока в том же конверте, что приезжает в `blocks` резолвера. '
-        .'Параметры лежат в собственной строке запроса без неймспейса, потому что блок в запросе один. '
-        .'Блок по одному uuid не отдаётся: сначала разрешается страница `path`, затем блок ищется в её снимке.'
-        ."\n\n".'Кроме перечисленных ниже принимаются параметры, объявленные схемой блока: их имена, типы '
-        .'и признак фильтра лежат в расширении `x-cms-params` схемы `…BlockData` соответствующего типа '
-        .'и передаются здесь плоскими ключами (`?month=2026-01`). Отдельным параметром операции они не '
-        .'объявлены, потому что набор зависит от типа блока, а не от операции. Необъявленный параметр '
-        .'отбрасывается молча, недопустимое значение объявленного — 422.',
+    description: 'Блок ищется в опубликованном снимке страницы `path`. Параметры блока из `x-cms-params` '
+        .'его схемы `…BlockData` передаются плоскими ключами (`?month=2026-01`); необъявленный '
+        .'отбрасывается, недопустимое значение — 422.',
     summary: 'Данные одного блока',
     tags: ['CMS'],
     parameters: [
@@ -55,7 +50,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Parameter(
             name: 'path',
-            description: 'Путь страницы, которой принадлежит блок. Блок с этим uuid на другой странице — 404.',
+            description: 'Путь страницы блока; блок другой страницы — 404',
             in: 'query',
             required: true,
             schema: new OA\Schema(type: 'string', example: '/tours/stand-up-action'),
@@ -70,22 +65,21 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Parameter(
             name: 'per_page',
-            description: 'Размер порции в режиме `pages`, если схема блока это разрешает; сверх действующего предела — 422',
+            description: 'Размер страницы в режиме `pages`, если схема блока разрешает; сверх предела — 422',
             in: 'query',
             required: false,
             schema: new OA\Schema(type: 'integer', minimum: 1),
         ),
         new OA\Parameter(
             name: 'shown',
-            description: 'Накопленный срез в режиме `more` с продолжением через адрес страницы; '
-                .'бэкенд приводит его к кратному порции и клампит потолком',
+            description: 'Показанный срез в режиме `more` через адрес страницы; приводится к кратному порции и потолку',
             in: 'query',
             required: false,
             schema: new OA\Schema(type: 'integer', minimum: 1),
         ),
         new OA\Parameter(
             name: 'cursor',
-            description: 'Непрозрачный курсор в режиме `more` с продолжением через этот endpoint',
+            description: 'Курсор в режиме `more` через этот endpoint',
             in: 'query',
             required: false,
             schema: new OA\Schema(type: 'string'),
@@ -98,7 +92,7 @@ use OpenApi\Attributes as OA;
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],
@@ -106,11 +100,11 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Response(
             response: 400,
-            description: 'Первый сегмент пути — код языка',
+            description: 'Путь начинается с кода языка',
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],
@@ -118,12 +112,11 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Response(
             response: 404,
-            description: 'Страница не найдена или не опубликована; блока с этим uuid нет в её снимке; '
-                .'блок выключен, его тип не зарегистрирован или не динамический',
+            description: 'Страница не опубликована или блока нет в её снимке',
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],
@@ -131,12 +124,12 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Response(
             response: 422,
-            description: 'Путь не передан или недопустимое значение объявленного параметра блока',
+            description: 'Нет пути или недопустимое значение параметра блока',
             content: new OA\JsonContent(ref: '#/components/schemas/CmsValidationError'),
         ),
         new OA\Response(
             response: 429,
-            description: 'Превышен лимит запросов к endpoint-у блока',
+            description: 'Превышен лимит запросов',
             content: new OA\JsonContent(ref: '#/components/schemas/CmsError'),
         ),
     ],

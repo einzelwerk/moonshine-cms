@@ -112,8 +112,7 @@ final readonly class BlockSchemaGenerator
 
         return new OA\Schema(
             schema: self::BLOCK,
-            description: 'Блок страницы. Тип сужается по `code`: у каждого варианта это перечисление '
-                .'из одного значения, совпадающее с кодом реестра.',
+            description: 'Блок страницы; тип сужается по `code`',
             discriminator: new OA\Discriminator(propertyName: 'code', mapping: $mapping),
             oneOf: $variants,
         );
@@ -123,8 +122,7 @@ final readonly class BlockSchemaGenerator
     {
         return new OA\Schema(
             schema: self::CHILDREN,
-            description: 'Дети контейнера по слотам: ключ — имя слота, значение — блоки в порядке '
-                .'редактора. У блока без слотов приезжает пустая карта.',
+            description: 'Дети контейнера: имя слота → блоки в порядке редактора; без слотов — пустой объект',
             type: 'object',
             additionalProperties: new OA\AdditionalProperties(
                 type: 'array',
@@ -150,11 +148,11 @@ final readonly class BlockSchemaGenerator
             description: $declaration->title() === '' ? Undefined::UNDEFINED : $declaration->title(),
             required: ['uuid', 'code', 'variant', 'anchor', 'data', 'children'],
             properties: [
-                new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-                new OA\Property(property: 'code', type: 'string', enum: [$code]),
+                new OA\Property(property: 'uuid', description: 'UUID', type: 'string', format: 'uuid'),
+                new OA\Property(property: 'code', description: 'Код типа блока', type: 'string', enum: [$code]),
                 new OA\Property(
                     property: 'variant',
-                    description: 'Оформление блока',
+                    description: 'Вариант оформления; null — по умолчанию',
                     type: 'string',
                     // `null` is a member of the enumeration, not only
                     // `nullable`: a block without a chosen variant answers
@@ -282,7 +280,7 @@ final readonly class BlockSchemaGenerator
 
         return new OA\Property(
             property: 'pagination',
-            description: 'Форма размечена режимом; редактор выбирает его из разрешённых схемой.',
+            description: 'Пагинация; режим выбирает редактор из разрешённых схемой',
             discriminator: new OA\Discriminator(propertyName: 'mode', mapping: $mapping),
             oneOf: $variants,
         );

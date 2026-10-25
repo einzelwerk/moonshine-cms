@@ -56,7 +56,7 @@ final class FieldSchemaMapper
             // is no null to declare.
             $field instanceof RichTextField => new OA\Property(
                 property: $name,
-                description: 'HTML в локали запроса',
+                description: 'HTML на языке ответа',
                 type: 'string',
             ),
             $field instanceof TextField, $field instanceof TextareaField => new OA\Property(
@@ -207,7 +207,7 @@ final class FieldSchemaMapper
     private function entity(EntityField $field, string $name): OA\Property
     {
         $reference = new OA\Items(
-            description: 'Ссылка на запись: тип и идентификатор',
+            description: 'Ссылка на запись: тип и ID',
             type: 'object',
             additionalProperties: true,
         );
@@ -218,7 +218,7 @@ final class FieldSchemaMapper
 
         return new OA\Property(
             property: $name,
-            description: 'Ссылка на запись: тип и идентификатор',
+            description: 'Ссылка на запись: тип и ID',
             type: 'object',
             additionalProperties: true,
             nullable: $this->nullable($field),

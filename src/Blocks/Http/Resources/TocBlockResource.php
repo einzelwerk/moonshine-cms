@@ -24,19 +24,19 @@ final class TocBlockResource extends SchemaBlockResource implements CollectsOwne
     public static function payloadSchema(): OpenApiSchema
     {
         return new OA\Schema(
-            description: 'Оглавление: заголовок блока и якоря всей страницы, а не своего слота. '
-                .'Пустой заголовок означает подпись по умолчанию на стороне фронта.',
+            description: 'Оглавление: якоря всей страницы, а не своего слота',
             required: ['title', 'items'],
             properties: [
-                new OA\Property(property: 'title', type: 'string'),
+                new OA\Property(property: 'title', description: 'Заголовок; пустой — подпись по умолчанию', type: 'string'),
                 new OA\Property(
                     property: 'items',
+                    description: 'Пункты оглавления',
                     type: 'array',
                     items: new OA\Items(
                         required: ['anchor', 'title'],
                         properties: [
-                            new OA\Property(property: 'anchor', type: 'string'),
-                            new OA\Property(property: 'title', type: 'string'),
+                            new OA\Property(property: 'anchor', description: 'Якорь блока', type: 'string'),
+                            new OA\Property(property: 'title', description: 'Заголовок', type: 'string'),
                         ],
                         type: 'object',
                     ),

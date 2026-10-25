@@ -16,19 +16,20 @@ use OpenApi\Attributes as OA;
  */
 #[OA\Schema(
     schema: 'CmsMetadata',
-    description: 'Метаданные страницы в форме Next Metadata: ключи camelCase, адреса абсолютные и с языком.',
+    description: 'Метаданные страницы в форме Next Metadata: ключи camelCase, адреса абсолютные с языком',
     required: ['title', 'description', 'alternates', 'openGraph', 'twitter', 'robots'],
     properties: [
-        new OA\Property(property: 'title', description: 'Заголовок; при пустом поле — название страницы или сущности', type: 'string', nullable: true),
-        new OA\Property(property: 'description', description: 'Описание; фолбэка у него нет — пустой тег хуже отсутствующего', type: 'string', nullable: true),
+        new OA\Property(property: 'title', description: 'Заголовок; пустой — название страницы или сущности', type: 'string', nullable: true),
+        new OA\Property(property: 'description', description: 'Описание', type: 'string', nullable: true),
         new OA\Property(
             property: 'alternates',
+            description: 'Канонический адрес и языковые версии',
             required: ['canonical', 'languages'],
             properties: [
-                new OA\Property(property: 'canonical', description: 'Канонический адрес: позиционные параметры пагинации остаются, фильтрующие исключены', type: 'string'),
+                new OA\Property(property: 'canonical', description: 'Канонический адрес: параметры пагинации остаются, фильтры исключены', type: 'string'),
                 new OA\Property(
                     property: 'languages',
-                    description: 'Код языка → адрес версии, плюс `x-default`. У неопубликованной страницы словарь пуст.',
+                    description: 'Код языка → адрес версии, плюс `x-default`; пуст у неопубликованной страницы',
                     type: 'object',
                     additionalProperties: new OA\AdditionalProperties(type: 'string'),
                 ),
@@ -37,20 +38,22 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'openGraph',
+            description: 'Open Graph',
             required: ['title', 'description', 'type', 'images'],
             properties: [
-                new OA\Property(property: 'title', type: 'string', nullable: true),
-                new OA\Property(property: 'description', type: 'string', nullable: true),
-                new OA\Property(property: 'type', type: 'string', example: 'website'),
+                new OA\Property(property: 'title', description: 'Заголовок', type: 'string', nullable: true),
+                new OA\Property(property: 'description', description: 'Описание', type: 'string', nullable: true),
+                new OA\Property(property: 'type', description: 'Тип объекта Open Graph', type: 'string', example: 'website'),
                 new OA\Property(
                     property: 'images',
+                    description: 'Изображения',
                     type: 'array',
                     items: new OA\Items(
                         required: ['url'],
                         properties: [
-                            new OA\Property(property: 'url', type: 'string', format: 'uri'),
-                            new OA\Property(property: 'width', description: 'Только когда размер файла по этому адресу известен', type: 'integer'),
-                            new OA\Property(property: 'height', type: 'integer'),
+                            new OA\Property(property: 'url', description: 'Абсолютный адрес', type: 'string', format: 'uri'),
+                            new OA\Property(property: 'width', description: 'Ширина в пикселях; только когда известна', type: 'integer'),
+                            new OA\Property(property: 'height', description: 'Высота в пикселях; только когда известна', type: 'integer'),
                         ],
                         type: 'object',
                     ),
@@ -60,21 +63,23 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Property(
             property: 'twitter',
+            description: 'Карточка Twitter',
             required: ['card', 'title', 'description', 'images'],
             properties: [
-                new OA\Property(property: 'card', type: 'string', example: 'summary_large_image'),
-                new OA\Property(property: 'title', type: 'string', nullable: true),
-                new OA\Property(property: 'description', type: 'string', nullable: true),
-                new OA\Property(property: 'images', type: 'array', items: new OA\Items(type: 'string', format: 'uri')),
+                new OA\Property(property: 'card', description: 'Тип карточки', type: 'string', example: 'summary_large_image'),
+                new OA\Property(property: 'title', description: 'Заголовок', type: 'string', nullable: true),
+                new OA\Property(property: 'description', description: 'Описание', type: 'string', nullable: true),
+                new OA\Property(property: 'images', description: 'Адреса изображений', type: 'array', items: new OA\Items(type: 'string', format: 'uri')),
             ],
             type: 'object',
         ),
         new OA\Property(
             property: 'robots',
+            description: 'Указания поисковым роботам',
             required: ['index', 'follow'],
             properties: [
-                new OA\Property(property: 'index', type: 'boolean'),
-                new OA\Property(property: 'follow', type: 'boolean'),
+                new OA\Property(property: 'index', description: 'Индексировать страницу', type: 'boolean'),
+                new OA\Property(property: 'follow', description: 'Переходить по ссылкам', type: 'boolean'),
             ],
             type: 'object',
         ),
@@ -83,12 +88,11 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Schema(
     schema: 'CmsJsonLd',
-    description: 'Объект schema.org страницы. Форма зависит от `@type` и построителя приложения, '
-        .'поэтому набор ключей открыт: разметку строит бэкенд, фронт печатает её как есть.',
+    description: 'Объект schema.org; набор ключей зависит от `@type`, фронт выводит его как есть',
     required: ['@context', '@type'],
     properties: [
-        new OA\Property(property: '@context', type: 'string', example: 'https://schema.org'),
-        new OA\Property(property: '@type', type: 'string', example: 'Event'),
+        new OA\Property(property: '@context', description: 'Контекст schema.org', type: 'string', example: 'https://schema.org'),
+        new OA\Property(property: '@type', description: 'Тип schema.org', type: 'string', example: 'Event'),
     ],
     type: 'object',
     additionalProperties: true,

@@ -24,14 +24,13 @@ use OpenApi\Attributes as OA;
 #[OA\Get(
     path: '/v1/menus/{code}',
     operationId: 'CmsMenuV1',
-    description: 'Одно меню, когда вся обвязка вызывающему не нужна. Выключенное меню отвечает так же, '
-        .'как несуществующее: активность — единственный рычаг публикации обвязки.',
+    description: 'Выключенное меню отвечает 404, как несуществующее.',
     summary: 'Меню по коду',
     tags: ['CMS'],
     parameters: [
         new OA\Parameter(
             name: 'code',
-            description: 'Код меню из `menus[].code` документа обвязки',
+            description: 'Код меню из `menus[].code` обвязки',
             in: 'path',
             required: true,
             schema: new OA\Schema(type: 'string', example: 'footer_1'),
@@ -45,7 +44,7 @@ use OpenApi\Attributes as OA;
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],
@@ -62,7 +61,7 @@ use OpenApi\Attributes as OA;
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],

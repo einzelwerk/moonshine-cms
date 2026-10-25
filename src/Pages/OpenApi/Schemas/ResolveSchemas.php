@@ -24,7 +24,7 @@ use OpenApi\Attributes as OA;
  */
 #[OA\Schema(
     schema: 'CmsResolveResponse',
-    description: 'Разрешённый адрес: страница, её субъект, блоки и языковые версии.',
+    description: 'Разрешённый адрес: страница, сущность, блоки и языки',
     type: 'object',
     // An extension point: the keys the contributors of the application write
     // are described in `CmsResolveExtension`. The application declares that
@@ -42,12 +42,13 @@ use OpenApi\Attributes as OA;
                 new OA\Property(property: 'path', description: 'Нормализованный путь без префикса языка', type: 'string', example: '/tours/stand-up-action'),
                 new OA\Property(
                     property: 'page',
+                    description: 'Страница',
                     required: ['uuid', 'name', 'layout_code', 'published_at'],
                     properties: [
-                        new OA\Property(property: 'uuid', type: 'string', format: 'uuid'),
-                        new OA\Property(property: 'name', description: 'Название страницы на языке запроса', type: 'string'),
-                        new OA\Property(property: 'layout_code', description: 'Код оболочки из GET /v1/chrome', type: 'string', nullable: true),
-                        new OA\Property(property: 'published_at', description: 'Дата публикации снимка, ISO-8601', type: 'string', format: 'date-time', nullable: true),
+                        new OA\Property(property: 'uuid', description: 'UUID', type: 'string', format: 'uuid'),
+                        new OA\Property(property: 'name', description: 'Название на языке ответа', type: 'string'),
+                        new OA\Property(property: 'layout_code', description: 'Код лейаута из GET /v1/chrome', type: 'string', nullable: true),
+                        new OA\Property(property: 'published_at', description: 'Дата и время публикации снимка', type: 'string', format: 'date-time', nullable: true),
                     ],
                     type: 'object',
                 ),
@@ -69,7 +70,7 @@ use OpenApi\Attributes as OA;
                 ),
                 new OA\Property(
                     property: 'blocks',
-                    description: 'Блоки снимка в порядке редактора; дети контейнеров лежат в `children`',
+                    description: 'Блоки снимка в порядке редактора; дети контейнеров — в `children`',
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/CmsBlock'),
                 ),
@@ -79,7 +80,7 @@ use OpenApi\Attributes as OA;
                     type: 'array',
                     items: new OA\Items(type: 'string'),
                 ),
-                new OA\Property(property: 'metadata', type: 'object', nullable: true, allOf: [new OA\Schema(ref: '#/components/schemas/CmsMetadata')]),
+                new OA\Property(property: 'metadata', description: 'Метаданные страницы', type: 'object', nullable: true, allOf: [new OA\Schema(ref: '#/components/schemas/CmsMetadata')]),
                 new OA\Property(
                     property: 'json_ld',
                     description: 'Объекты schema.org страницы',
@@ -93,8 +94,7 @@ use OpenApi\Attributes as OA;
 )]
 #[OA\Schema(
     schema: 'CmsBlockResponse',
-    description: 'Ответ endpoint-а одного блока: тот же конверт, что приезжает в `blocks` резолвера, '
-        .'поэтому нового типа на фронте не появляется.',
+    description: 'Блок в том же конверте, что в `blocks` резолвера',
     required: ['data'],
     properties: [
         new OA\Property(property: 'data', ref: '#/components/schemas/CmsBlock'),

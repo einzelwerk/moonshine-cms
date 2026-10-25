@@ -26,8 +26,7 @@ use OpenApi\Attributes as OA;
 #[OA\Get(
     path: '/v1/chrome',
     operationId: 'CmsChromeV1',
-    description: 'Всё вокруг содержимого одним документом: активные лейауты, шапки, подвалы и меню, '
-        .'достижимые через их слоты. Ответ одинаков для всех посетителей — ничего личного в нём нет.',
+    description: 'Ответ одинаков для всех посетителей.',
     summary: 'Обвязка сайта',
     tags: ['CMS'],
     parameters: [
@@ -40,7 +39,7 @@ use OpenApi\Attributes as OA;
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],

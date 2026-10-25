@@ -20,9 +20,7 @@ use OpenApi\Attributes as OA;
 #[OA\Get(
     path: '/v1/sitemap/{id}',
     operationId: 'CmsSitemapFileV1',
-    description: 'Записи одного файла карты сайта в форме `MetadataRoute.Sitemap` Next: адреса абсолютные '
-        .'и с языком, у каждой записи — все её языковые версии, включая её саму, и `x-default`. '
-        .'`priority` и `changefreq` не отдаются: поисковики их игнорируют.',
+    description: 'Записи в форме `MetadataRoute.Sitemap` Next: абсолютные адреса с языком и языковые версии с `x-default`.',
     summary: 'Файл карты сайта',
     tags: ['CMS'],
     parameters: [
@@ -51,7 +49,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Response(
             response: 404,
-            description: 'Такого файла нет',
+            description: 'Файл не найден',
             content: new OA\JsonContent(ref: '#/components/schemas/CmsError'),
         ),
     ],

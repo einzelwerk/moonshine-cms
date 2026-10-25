@@ -98,8 +98,7 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::RESOLVE_EXTENSION,
-            description: 'Ключи ответа резолвера, которые дописывает приложение своими контрибьюторами. '
-                .'Приложение объявляет компонент с этим именем и перечисляет их.',
+            description: 'Ключи ответа резолвера, которые дописывает приложение',
             type: 'object',
             additionalProperties: true,
         );
@@ -121,7 +120,7 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::ERROR,
-            description: 'Отказ: сообщение верхнего уровня, без конверта `data`.',
+            description: 'Ошибка',
             required: ['message', 'code'],
             properties: [
                 new OA\Property(property: 'message', description: 'Сообщение для пользователя', type: 'string', example: 'Не найдено.'),
@@ -133,7 +132,7 @@ final class CommonSchemas
                 ),
                 new OA\Property(
                     property: 'retry_after',
-                    description: 'Только у 429: секунды до снятия лимита, рядом с заголовком Retry-After.',
+                    description: 'Секунд до снятия лимита; только у 429',
                     type: 'integer',
                     nullable: true,
                     example: 42,
@@ -147,7 +146,7 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::VALIDATION_ERROR,
-            description: 'Отказ валидации: к сообщению добавлены ошибки по полям.',
+            description: 'Ошибка валидации',
             required: ['message', 'code', 'errors'],
             properties: [
                 new OA\Property(property: 'message', description: 'Сообщение для пользователя', type: 'string'),
@@ -159,6 +158,7 @@ final class CommonSchemas
                 ),
                 new OA\Property(
                     property: 'errors',
+                    description: 'Ошибки по полям',
                     type: 'object',
                     example: ['path' => ['The path field is required.']],
                     additionalProperties: new OA\AdditionalProperties(
@@ -187,9 +187,8 @@ final class CommonSchemas
         return new OA\Parameter(
             parameter: self::ACCEPT_LANGUAGE,
             name: 'Accept-Language',
-            description: 'Язык содержимого ответа. Middleware выбирает первый поддерживаемый язык с учётом '
-                .'q-приоритетов и приводит региональные варианты (en-US → en); без подходящего языка '
-                .'отдаётся язык по умолчанию. Ответ несёт Vary: Accept-Language.',
+            description: 'Язык ответа с учётом q-приоритетов; регион отбрасывается (en-US → en), '
+                .'без подходящего языка — язык по умолчанию',
             in: 'header',
             required: \count($locales) > 1,
             schema: new OA\Schema(type: 'string', example: $locales[0] ?? 'ru'),
@@ -208,18 +207,18 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::MEDIA,
-            description: 'Изображение блока в единой форме, независимо от источника.',
+            description: 'Файл медиатеки в единой форме',
             required: ['id', 'url', 'thumb_url', 'width', 'height', 'alt', 'kind', 'mime', 'size'],
             properties: [
-                new OA\Property(property: 'id', description: 'UUID записи медиа', type: 'string', nullable: true),
-                new OA\Property(property: 'url', type: 'string', format: 'uri'),
-                new OA\Property(property: 'thumb_url', description: 'Превью; null, если вариант не сгенерирован', type: 'string', format: 'uri', nullable: true),
-                new OA\Property(property: 'width', type: 'integer', nullable: true),
-                new OA\Property(property: 'height', type: 'integer', nullable: true),
-                new OA\Property(property: 'alt', description: 'Альтернативный текст в локали запроса', type: 'string', nullable: true),
+                new OA\Property(property: 'id', description: 'UUID записи медиатеки', type: 'string', nullable: true),
+                new OA\Property(property: 'url', description: 'Адрес файла', type: 'string', format: 'uri'),
+                new OA\Property(property: 'thumb_url', description: 'Адрес превью; null — превью не создано', type: 'string', format: 'uri', nullable: true),
+                new OA\Property(property: 'width', description: 'Ширина в пикселях; null — неизвестна', type: 'integer', nullable: true),
+                new OA\Property(property: 'height', description: 'Высота в пикселях; null — неизвестна', type: 'integer', nullable: true),
+                new OA\Property(property: 'alt', description: 'Альтернативный текст на языке ответа', type: 'string', nullable: true),
                 new OA\Property(property: 'kind', description: 'Вид файла', type: 'string', enum: ['image', 'vector', 'video', 'audio', 'document']),
-                new OA\Property(property: 'mime', description: 'Тип содержимого', type: 'string'),
-                new OA\Property(property: 'size', description: 'Размер файла в байтах', type: 'integer'),
+                new OA\Property(property: 'mime', description: 'MIME-тип', type: 'string'),
+                new OA\Property(property: 'size', description: 'Размер в байтах', type: 'integer'),
             ],
             type: 'object',
         );
@@ -239,14 +238,13 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::MEDIA_REF,
-            description: 'Ссылка на запись медиатеки: идентификатор файла и переопределения его metadata. '
-                .'Адрес не отдаётся — его собирает ресурс, который гидрирует ссылку в `CmsMedia`.',
+            description: 'Ссылка на запись медиатеки без адреса файла',
             required: ['id'],
             properties: [
-                new OA\Property(property: 'id', description: 'UUID записи медиа', type: 'string', format: 'uuid'),
+                new OA\Property(property: 'id', description: 'UUID записи медиатеки', type: 'string', format: 'uuid'),
                 new OA\Property(
                     property: 'metadata',
-                    description: 'Переопределения базовых metadata записи; `alt` переводим всегда',
+                    description: 'Переопределения metadata записи; `alt` — по языкам',
                     type: 'object',
                     additionalProperties: true,
                 ),
@@ -264,14 +262,13 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::LINK,
-            description: 'Разобранная ссылка: адрес приезжает готовым, `href: null` означает недостижимую цель. '
-                .'Путь отдаётся без префикса языка, префикс добавляет фронт.',
+            description: 'Ссылка с готовым адресом; путь без префикса языка',
             required: ['kind', 'href', 'external', 'new_tab', 'action'],
             properties: [
-                new OA\Property(property: 'kind', type: 'string', enum: array_column(LinkKind::cases(), 'value')),
-                new OA\Property(property: 'href', type: 'string', nullable: true),
-                new OA\Property(property: 'external', type: 'boolean'),
-                new OA\Property(property: 'new_tab', type: 'boolean'),
+                new OA\Property(property: 'kind', description: 'Вид ссылки', type: 'string', enum: array_column(LinkKind::cases(), 'value')),
+                new OA\Property(property: 'href', description: 'Адрес; null — цель недостижима', type: 'string', nullable: true),
+                new OA\Property(property: 'external', description: 'Внешний адрес', type: 'boolean'),
+                new OA\Property(property: 'new_tab', description: 'Открывать в новой вкладке', type: 'boolean'),
                 new OA\Property(
                     property: 'action',
                     description: 'Действие фронта; null у ссылки другого вида',
@@ -303,23 +300,23 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::PAGINATION_PAGES,
-            description: 'Нумерованные страницы каталога: позиция живёт в адресе страницы.',
+            description: 'Нумерованные страницы; позиция в адресе страницы',
             required: ['mode', 'per_page', 'current_page', 'last_page', 'total', 'has_more', 'links'],
             properties: [
-                new OA\Property(property: 'mode', type: 'string', enum: [PaginationMode::PAGES->value]),
-                new OA\Property(property: 'per_page', type: 'integer', minimum: 1),
-                new OA\Property(property: 'current_page', type: 'integer', minimum: 1),
-                new OA\Property(property: 'last_page', type: 'integer', minimum: 1),
-                new OA\Property(property: 'total', type: 'integer', minimum: 0),
-                new OA\Property(property: 'has_more', type: 'boolean'),
+                new OA\Property(property: 'mode', description: 'Режим пагинации', type: 'string', enum: [PaginationMode::PAGES->value]),
+                new OA\Property(property: 'per_page', description: 'Размер страницы', type: 'integer', minimum: 1),
+                new OA\Property(property: 'current_page', description: 'Номер текущей страницы', type: 'integer', minimum: 1),
+                new OA\Property(property: 'last_page', description: 'Номер последней страницы', type: 'integer', minimum: 1),
+                new OA\Property(property: 'total', description: 'Всего записей', type: 'integer', minimum: 0),
+                new OA\Property(property: 'has_more', description: 'Есть следующая страница', type: 'boolean'),
                 new OA\Property(
                     property: 'links',
-                    description: 'Готовые строки запроса той же страницы; отсутствующее направление — null.',
+                    description: 'Строки запроса соседних страниц; null — направления нет',
                     required: ['self', 'next', 'prev'],
                     properties: [
-                        new OA\Property(property: 'self', type: 'string'),
-                        new OA\Property(property: 'next', type: 'string', nullable: true),
-                        new OA\Property(property: 'prev', type: 'string', nullable: true),
+                        new OA\Property(property: 'self', description: 'Текущая страница', type: 'string'),
+                        new OA\Property(property: 'next', description: 'Следующая страница', type: 'string', nullable: true),
+                        new OA\Property(property: 'prev', description: 'Предыдущая страница', type: 'string', nullable: true),
                     ],
                     type: 'object',
                 ),
@@ -341,23 +338,23 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::PAGINATION_MORE,
-            description: 'Дозагрузка: список растёт. Транспорт `url` держит позицию в адресе страницы (`shown`), '
-                .'транспорт `endpoint` — в непрозрачном курсоре запроса к endpoint-у блока.',
+            description: 'Дозагрузка: `url` держит позицию в адресе страницы (`shown`), '
+                .'`endpoint` — в курсоре запроса к endpoint-у блока',
             required: ['mode', 'continuation', 'per_page', 'has_more', 'next'],
             properties: [
-                new OA\Property(property: 'mode', type: 'string', enum: [PaginationMode::MORE->value]),
-                new OA\Property(property: 'continuation', type: 'string', enum: array_column(Continuation::cases(), 'value')),
-                new OA\Property(property: 'per_page', type: 'integer', minimum: 1),
-                new OA\Property(property: 'shown', description: 'Фактический размер показанного среза; только в транспорте `url`', type: 'integer', minimum: 1),
-                new OA\Property(property: 'total', description: 'Только в транспорте `url`: курсорная выборка общего количества не считает', type: 'integer', minimum: 0),
-                new OA\Property(property: 'has_more', type: 'boolean'),
-                new OA\Property(property: 'next', description: 'Строка запроса той же страницы либо адрес endpoint-а блока с курсором', type: 'string', nullable: true),
+                new OA\Property(property: 'mode', description: 'Режим пагинации', type: 'string', enum: [PaginationMode::MORE->value]),
+                new OA\Property(property: 'continuation', description: 'Способ продолжения', type: 'string', enum: array_column(Continuation::cases(), 'value')),
+                new OA\Property(property: 'per_page', description: 'Размер порции', type: 'integer', minimum: 1),
+                new OA\Property(property: 'shown', description: 'Размер показанного среза; только для `url`', type: 'integer', minimum: 1),
+                new OA\Property(property: 'total', description: 'Всего записей; только для `url`', type: 'integer', minimum: 0),
+                new OA\Property(property: 'has_more', description: 'Список продолжается', type: 'boolean'),
+                new OA\Property(property: 'next', description: 'Строка запроса страницы или адрес endpoint-а блока со следующей порцией; null — потолок блока', type: 'string', nullable: true),
                 new OA\Property(
                     property: 'catalog',
-                    description: 'Куда ведёт список за потолком блока; фронт показывает ссылку, когда `next` пуст',
+                    description: 'Каталог за потолком блока; показывается, когда `next` пуст',
                     required: ['href'],
                     properties: [
-                        new OA\Property(property: 'href', type: 'string'),
+                        new OA\Property(property: 'href', description: 'Адрес', type: 'string'),
                     ],
                     type: 'object',
                     nullable: true,
@@ -371,10 +368,10 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::PAGINATION_NONE,
-            description: 'Фиксированный список без продолжения.',
+            description: 'Список без продолжения',
             required: ['mode'],
             properties: [
-                new OA\Property(property: 'mode', type: 'string', enum: [PaginationMode::NONE->value]),
+                new OA\Property(property: 'mode', description: 'Режим пагинации', type: 'string', enum: [PaginationMode::NONE->value]),
             ],
             type: 'object',
         );
@@ -384,7 +381,7 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::PAGINATION,
-            description: 'Форма пагинации размечена режимом: фронт сужает тип по `mode`.',
+            description: 'Пагинация; форма зависит от `mode`',
             discriminator: new OA\Discriminator(
                 propertyName: 'mode',
                 mapping: [
@@ -410,27 +407,27 @@ final class CommonSchemas
     {
         return new OA\Schema(
             schema: self::FILTERS,
-            description: 'Панель фильтров блока. В режиме `inline` выбор фильтрует этот же список, '
-                .'в режиме `redirect` — уводит на страницу каталога по адресу из `redirect`.',
+            description: 'Панель фильтров: `inline` фильтрует этот список, `redirect` ведёт на каталог по `redirect`',
             required: ['mode', 'fields'],
             properties: [
-                new OA\Property(property: 'mode', type: 'string', enum: ['inline', 'redirect']),
+                new OA\Property(property: 'mode', description: 'Режим панели', type: 'string', enum: ['inline', 'redirect']),
                 new OA\Property(
                     property: 'fields',
-                    description: 'Имя параметра → выбранное значение и вычисленные блоком варианты.',
+                    description: 'Имя параметра → выбранное значение и варианты',
                     type: 'object',
                     additionalProperties: new OA\AdditionalProperties(
                         required: ['value', 'options'],
                         properties: [
-                            new OA\Property(property: 'value', type: 'string', nullable: true),
+                            new OA\Property(property: 'value', description: 'Выбранное значение; null — не выбрано', type: 'string', nullable: true),
                             new OA\Property(
                                 property: 'options',
+                                description: 'Варианты',
                                 type: 'array',
                                 items: new OA\Items(
                                     required: ['value', 'label'],
                                     properties: [
-                                        new OA\Property(property: 'value', type: 'string', nullable: true),
-                                        new OA\Property(property: 'label', type: 'string'),
+                                        new OA\Property(property: 'value', description: 'Значение; null — без фильтра', type: 'string', nullable: true),
+                                        new OA\Property(property: 'label', description: 'Подпись', type: 'string'),
                                     ],
                                     type: 'object',
                                 ),
@@ -441,10 +438,10 @@ final class CommonSchemas
                 ),
                 new OA\Property(
                     property: 'redirect',
-                    description: 'Адрес цели в режиме `redirect`',
+                    description: 'Цель режима `redirect`',
                     required: ['href'],
                     properties: [
-                        new OA\Property(property: 'href', type: 'string'),
+                        new OA\Property(property: 'href', description: 'Адрес', type: 'string'),
                     ],
                     type: 'object',
                 ),

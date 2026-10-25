@@ -35,15 +35,13 @@ use OpenApi\Attributes as OA;
 #[OA\Get(
     path: '/v1/resolve',
     operationId: 'CmsResolveV1',
-    description: 'Один вход на любой публичный контентный адрес: страница, её субъект, блоки снимка, '
-        .'языковые версии и метаданные. Отдаётся опубликованный снимок, черновик — 404.',
-    summary: 'Разрешить адрес',
+    description: 'Отдаётся опубликованный снимок страницы; черновик — 404.',
+    summary: 'Разрешение адреса',
     tags: ['CMS'],
     parameters: [
         new OA\Parameter(
             name: 'path',
-            description: 'Путь без префикса языка, например `/` или `/tours/stand-up-action`. '
-                .'Путь с кодом языка в первом сегменте — 400: язык приходит заголовком.',
+            description: 'Путь без префикса языка; путь с кодом языка в первом сегменте — 400',
             in: 'query',
             required: true,
             schema: new OA\Schema(type: 'string', example: '/'),
@@ -51,12 +49,10 @@ use OpenApi\Attributes as OA;
         new OA\Parameter(ref: '#/components/parameters/AcceptLanguage'),
         new OA\Parameter(
             name: 'b',
-            description: 'Параметры динамических блоков, сгруппированные по якорю блока: '
-                .'`b[<якорь>][<параметр>]=<значение>`, например `b[raspisanie][page]=2` или '
-                .'`b[afisha][shown]=36&b[afisha][date]=2026-09-12`. Якорь берётся из `blocks[].anchor`, '
-                .'набор параметров типа — из расширения `x-cms-params` его схемы `…BlockData`. '
-                .'Скобки в именах ключей не кодируются. Набор под неизвестным якорем и необъявленный '
-                .'параметр отбрасываются молча; недопустимое значение объявленного параметра — 422.',
+            description: 'Параметры динамических блоков по якорю: `b[<якорь>][<параметр>]=<значение>`, '
+                .'например `b[raspisanie][page]=2`; скобки не кодируются. Якорь — `blocks[].anchor`, параметры — '
+                .'`x-cms-params` схемы `…BlockData`. Неизвестный якорь и необъявленный параметр отбрасываются, '
+                .'недопустимое значение — 422.',
             in: 'query',
             required: false,
             schema: new OA\Schema(type: 'object', additionalProperties: true),
@@ -71,7 +67,7 @@ use OpenApi\Attributes as OA;
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],
@@ -84,11 +80,11 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Response(
             response: 400,
-            description: 'Первый сегмент пути — код языка: язык приходит заголовком Accept-Language',
+            description: 'Путь начинается с кода языка',
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],
@@ -96,11 +92,11 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Response(
             response: 404,
-            description: 'Адрес не найден, страница не опубликована или снята с публикации',
+            description: 'Адрес не найден или не опубликован',
             headers: [
                 new OA\Header(
                     header: 'Vary',
-                    description: 'Представление зависит от языка запроса',
+                    description: 'Ответ зависит от Accept-Language',
                     schema: new OA\Schema(type: 'string', example: 'Accept-Language'),
                 ),
             ],
@@ -108,7 +104,7 @@ use OpenApi\Attributes as OA;
         ),
         new OA\Response(
             response: 422,
-            description: 'Путь не передан или недопустимое значение объявленного параметра блока',
+            description: 'Нет пути или недопустимое значение параметра блока',
             content: new OA\JsonContent(ref: '#/components/schemas/CmsValidationError'),
         ),
     ],

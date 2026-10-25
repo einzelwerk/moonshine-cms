@@ -28,16 +28,16 @@ final class ColumnsBlockResource extends SchemaBlockResource implements Describe
     public static function payloadSchema(): OpenApiSchema
     {
         return new OA\Schema(
-            description: 'Контейнер колонок: доли слотов на двенадцатиколоночной сетке, в порядке '
-                .'объявления. Сами дети приезжают в `children`.',
+            description: 'Колонки: доли слотов на 12-колоночной сетке в порядке объявления; дети — в `children`',
             required: ['widths', 'collapse_on_mobile'],
             properties: [
                 new OA\Property(
                     property: 'widths',
+                    description: 'Доли слотов из 12',
                     type: 'array',
                     items: new OA\Items(type: 'integer', maximum: 12, minimum: 1),
                 ),
-                new OA\Property(property: 'collapse_on_mobile', type: 'boolean'),
+                new OA\Property(property: 'collapse_on_mobile', description: 'Складывать в одну колонку на мобильных', type: 'boolean'),
             ],
             type: 'object',
         );
