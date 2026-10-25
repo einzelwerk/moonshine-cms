@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Ewk\Cms\Blocks\Http\Payload;
 
+use stdClass;
+
 /**
  * The `filters` object inside the `data` of a list block.
  *
@@ -27,7 +29,7 @@ final class FiltersPayload
      * @param  string  $mode  `inline` filters its own list, `redirect` leads away with the filters carried over
      * @param  array<string, array{value?: mixed, options?: mixed}>  $fields  parameter name => chosen value and its options
      * @param  string|null  $redirectHref  the target of the `redirect` mode
-     * @return array{mode: string, fields: array<string, array{value: mixed, options: list<array{value: mixed, label: string}>}>, redirect?: array{href: string}}
+     * @return array{mode: string, fields: non-empty-array<string, array{value: mixed, options: list<array{value: mixed, label: string}>}>|stdClass, redirect?: array{href: string}}
      */
     public static function make(string $mode, array $fields, ?string $redirectHref = null): array
     {
@@ -42,7 +44,7 @@ final class FiltersPayload
             ];
         }
 
-        $payload = ['mode' => $mode, 'fields' => $built];
+        $payload = ['mode' => $mode, 'fields' => $built === [] ? new stdClass() : $built];
 
         if ($mode === self::MODE_REDIRECT && $redirectHref !== null) {
             $payload['redirect'] = ['href' => $redirectHref];

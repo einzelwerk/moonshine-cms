@@ -43,11 +43,7 @@ it('accepts a map of value to label as well', function (): void {
 it('adds the target of the redirect mode and nothing in the inline one', function (): void {
     $redirect = FiltersPayload::make(FiltersPayload::MODE_REDIRECT, [], '/events?date_from=2026-09-12');
 
-    expect($redirect)->toBe([
-        'mode' => 'redirect',
-        'fields' => [],
-        'redirect' => ['href' => '/events?date_from=2026-09-12'],
-    ])
+    expect(json_encode($redirect))->toBe('{"mode":"redirect","fields":{},"redirect":{"href":"\\/events?date_from=2026-09-12"}}')
         ->and(FiltersPayload::make(FiltersPayload::MODE_INLINE, [], '/events'))
         ->not->toHaveKey('redirect');
 });
@@ -56,4 +52,9 @@ it('falls back to an empty option list for a filter without values', function ()
     $payload = FiltersPayload::make(FiltersPayload::MODE_INLINE, ['city' => ['value' => null]]);
 
     expect($payload['fields']['city'])->toBe(['value' => null, 'options' => []]);
+});
+
+it('sends no fields as an empty JSON object, never as an empty list', function (): void {
+    expect(json_encode(FiltersPayload::make(FiltersPayload::MODE_INLINE, [])))
+        ->toBe('{"mode":"inline","fields":{}}');
 });

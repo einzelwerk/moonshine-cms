@@ -102,7 +102,7 @@ it('keeps the hint of an action whose address could not be built', function (): 
     $resolved = resolveLink(LinkKind::ACTION, ['action' => 'buy', 'params' => []]);
 
     expect($resolved->href)->toBeNull()
-        ->and($resolved->action)->toBe(['name' => 'buy', 'params' => []]);
+        ->and(json_encode($resolved->action))->toBe('{"name":"buy","params":{}}');
 });
 
 it('tells a kind without a resolver apart from a target that cannot be reached', function (): void {

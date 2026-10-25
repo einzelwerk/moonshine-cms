@@ -10,6 +10,7 @@ use Ewk\Cms\Blocks\Links\LinkKind;
 use Ewk\Cms\Blocks\Links\LinkResolverContract;
 use Ewk\Cms\Blocks\Links\ResolvedLink;
 use Ewk\Cms\Blocks\Links\ValidatesLinkTarget;
+use stdClass;
 
 /**
  * A named state of the frontend. The address is built by the declaration of the
@@ -41,7 +42,7 @@ final readonly class ActionLinkResolver implements LinkResolverContract, Validat
             newTab: $link->newTab,
             // The hint survives an address that could not be built: the block
             // then knows which button it is holding and can hide it knowingly.
-            action: $name === null ? null : ['name' => $name, 'params' => $params],
+            action: $name === null ? null : ['name' => $name, 'params' => $params === [] ? new stdClass() : $params],
         );
     }
 
