@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ewk\Cms\Pages\Http\Controllers;
 
+use Ewk\Cms\Blocks\Http\ErrorCode;
 use Ewk\Cms\Pages\Http\Resolve\ResolveInput;
 use Ewk\Cms\Pages\Http\Resolve\ResolvePage;
 use Ewk\Cms\Pages\Http\Resolve\ResolveStatus;
@@ -123,15 +124,13 @@ final readonly class ResolveController
         $outcome = $this->resolve->resolve(ResolveInput::path($request), $request);
 
         if ($outcome->status === ResolveStatus::LANGUAGE_PREFIX) {
-            return self::answer([
-                'message' => (string) __('cms-pages::resolve.language_prefix', [
-                    'language' => (string) $outcome->language,
-                ]),
-            ], 400);
+            return self::answer(ErrorCode::BAD_REQUEST->body((string) __('cms-pages::resolve.language_prefix', [
+                'language' => (string) $outcome->language,
+            ])), 400);
         }
 
         if (! $outcome->isFound() || $outcome->document === null) {
-            return self::answer(['message' => (string) __('cms-pages::resolve.not_found')], 404);
+            return self::answer(ErrorCode::NOT_FOUND->body((string) __('cms-pages::resolve.not_found')), 404);
         }
 
         return self::answer(['data' => $outcome->document->toArray()]);

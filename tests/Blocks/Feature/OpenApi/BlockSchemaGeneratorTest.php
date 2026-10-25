@@ -444,3 +444,13 @@ it('describes the action of a link as the keys the resolver hands out', function
         ->and(cmsPropertyOf($action, 'params')->type)->toBe('object')
         ->and(array_keys((array) $resolved))->toBe($action->required);
 });
+
+it('constrains the code of every refusal of the CMS', function (string $component, array $codes): void {
+    $schema = cmsCommon()[$component];
+
+    expect($schema->required)->toContain('message', 'code')
+        ->and(cmsPropertyOf($schema, 'code')->enum)->toBe($codes);
+})->with([
+    'a refusal' => [CommonSchemas::ERROR, ['bad_request', 'not_found', 'too_many_requests']],
+    'a validation refusal' => [CommonSchemas::VALIDATION_ERROR, ['validation_failed']],
+]);

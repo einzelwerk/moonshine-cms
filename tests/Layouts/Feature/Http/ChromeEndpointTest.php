@@ -63,7 +63,8 @@ it('fetches a single menu by its code and answers 404 for an unknown or switched
     $this->getJson('/api/v1/menus/nope')
         ->assertNotFound()
         ->assertHeader('Vary', 'Accept-Language')
-        ->assertJsonPath('message', __('cms-layouts::chrome.menu_not_found'));
+        ->assertJsonPath('message', __('cms-layouts::chrome.menu_not_found'))
+        ->assertJsonPath('code', 'not_found');
 
     $menu->update(['is_active' => false]);
 

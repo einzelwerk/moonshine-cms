@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ewk\Cms\Layouts\Http\Controllers;
 
+use Ewk\Cms\Blocks\Http\ErrorCode;
 use Ewk\Cms\Layouts\Chrome\ChromeDocument;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -80,10 +81,7 @@ final readonly class MenuController
         $menu = $this->chrome->menu($code);
 
         if ($menu === null) {
-            return self::answer(
-                ['message' => (string) __('cms-layouts::chrome.menu_not_found')],
-                404,
-            );
+            return self::answer(ErrorCode::NOT_FOUND->body((string) __('cms-layouts::chrome.menu_not_found')), 404);
         }
 
         return self::answer(['data' => $menu]);

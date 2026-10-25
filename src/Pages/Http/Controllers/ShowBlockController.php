@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ewk\Cms\Pages\Http\Controllers;
 
+use Ewk\Cms\Blocks\Http\ErrorCode;
 use Ewk\Cms\Blocks\Params\BlockParameters;
 use Ewk\Cms\Blocks\Rendering\BlockRenderer;
 use Ewk\Cms\Pages\Http\Resolve\ResolveInput;
@@ -154,17 +155,15 @@ final readonly class ShowBlockController
         $outcome = $this->resolve->locate(ResolveInput::path($request), $request);
 
         if ($outcome->status === ResolveStatus::LANGUAGE_PREFIX) {
-            return self::answer([
-                'message' => (string) __('cms-pages::resolve.language_prefix', [
-                    'language' => (string) $outcome->language,
-                ]),
-            ], 400);
+            return self::answer(ErrorCode::BAD_REQUEST->body((string) __('cms-pages::resolve.language_prefix', [
+                'language' => (string) $outcome->language,
+            ])), 400);
         }
 
         $located = $outcome->located;
 
         if (! $outcome->isFound() || $located === null) {
-            return self::answer(['message' => (string) __('cms-pages::resolve.not_found')], 404);
+            return self::answer(ErrorCode::NOT_FOUND->body((string) __('cms-pages::resolve.not_found')), 404);
         }
 
         // The namespace of the parameters is the anchor of the block as the
@@ -179,7 +178,7 @@ final readonly class ShowBlockController
         );
 
         if ($envelope === null) {
-            return self::answer(['message' => (string) __('cms-pages::resolve.block_not_found')], 404);
+            return self::answer(ErrorCode::NOT_FOUND->body((string) __('cms-pages::resolve.block_not_found')), 404);
         }
 
         return self::answer(['data' => $envelope]);

@@ -164,7 +164,7 @@ it('reports a language prefix with 400 instead of hiding it behind a 404', funct
 
     $response = $this->getJson('/api/v1/resolve?path=/ru/terms');
 
-    $response->assertStatus(400);
+    $response->assertStatus(400)->assertJsonPath('code', 'bad_request');
 
     expect($response->json('message'))->toContain('ru');
 });
@@ -297,7 +297,10 @@ it('carries the Vary header on a miss as well as on a hit', function (): void {
 
     $response->assertNotFound()->assertHeader('Vary', 'Accept-Language');
 
-    expect($response->json('message'))->toBe(__('cms-pages::resolve.not_found'));
+    expect($response->json())->toBe([
+        'message' => __('cms-pages::resolve.not_found'),
+        'code' => 'not_found',
+    ]);
 });
 
 it('keeps answering the published state while the draft moves on', function (): void {

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ewk\Cms\Blocks\OpenApi;
 
+use Ewk\Cms\Blocks\Http\ErrorCode;
 use Ewk\Cms\Blocks\Links\LinkKind;
 use Ewk\Cms\Blocks\Params\Continuation;
 use Ewk\Cms\Blocks\Params\PaginationMode;
@@ -121,9 +122,15 @@ final class CommonSchemas
         return new OA\Schema(
             schema: self::ERROR,
             description: 'Отказ: сообщение верхнего уровня, без конверта `data`.',
-            required: ['message'],
+            required: ['message', 'code'],
             properties: [
-                new OA\Property(property: 'message', type: 'string', example: 'Не найдено.'),
+                new OA\Property(property: 'message', description: 'Сообщение для пользователя', type: 'string', example: 'Не найдено.'),
+                new OA\Property(
+                    property: 'code',
+                    description: 'Код ошибки',
+                    type: 'string',
+                    enum: [ErrorCode::BAD_REQUEST->value, ErrorCode::NOT_FOUND->value, ErrorCode::TOO_MANY_REQUESTS->value],
+                ),
                 new OA\Property(
                     property: 'retry_after',
                     description: 'Только у 429: секунды до снятия лимита, рядом с заголовком Retry-After.',
@@ -141,9 +148,15 @@ final class CommonSchemas
         return new OA\Schema(
             schema: self::VALIDATION_ERROR,
             description: 'Отказ валидации: к сообщению добавлены ошибки по полям.',
-            required: ['message', 'errors'],
+            required: ['message', 'code', 'errors'],
             properties: [
-                new OA\Property(property: 'message', type: 'string'),
+                new OA\Property(property: 'message', description: 'Сообщение для пользователя', type: 'string'),
+                new OA\Property(
+                    property: 'code',
+                    description: 'Код ошибки',
+                    type: 'string',
+                    enum: [ErrorCode::VALIDATION_FAILED->value],
+                ),
                 new OA\Property(
                     property: 'errors',
                     type: 'object',

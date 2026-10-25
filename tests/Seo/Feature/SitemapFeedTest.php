@@ -189,7 +189,8 @@ it('answers 404 for a file the feed does not have', function (string $id): void 
 
     test()->getJson('/api/v1/sitemap/'.$id)
         ->assertNotFound()
-        ->assertJsonPath('message', __('cms-seo::seo.sitemap.not_found'));
+        ->assertJsonPath('message', __('cms-seo::seo.sitemap.not_found'))
+        ->assertJsonPath('code', 'not_found');
 })->with([
     'a part past the end' => 'ru-pages-2',
     'an unknown source' => 'ru-tours-1',

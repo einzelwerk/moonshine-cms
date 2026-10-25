@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Ewk\Cms\Seo\Http\Controllers;
 
+use Ewk\Cms\Blocks\Http\ErrorCode;
 use Ewk\Cms\Seo\Sitemap\SitemapFeed;
 use Illuminate\Http\JsonResponse;
 use OpenApi\Attributes as OA;
@@ -67,7 +68,7 @@ final readonly class SitemapFileController
 
         if ($entries === null) {
             return new JsonResponse(
-                data: ['message' => (string) __('cms-seo::seo.sitemap.not_found')],
+                data: ErrorCode::NOT_FOUND->body((string) __('cms-seo::seo.sitemap.not_found')),
                 status: 404,
                 options: JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES,
             );

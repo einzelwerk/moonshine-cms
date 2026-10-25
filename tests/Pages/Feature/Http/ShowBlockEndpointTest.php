@@ -89,7 +89,9 @@ it('answers 404 for a uuid that belongs to another page', function (): void {
     $stranger = listingOn($other, 'arhiv');
     publishPage($other);
 
-    $this->getJson('/api/v1/blocks/'.$stranger->uuid.'?path=/catalogue')->assertNotFound();
+    $this->getJson('/api/v1/blocks/'.$stranger->uuid.'?path=/catalogue')
+        ->assertNotFound()
+        ->assertExactJson(['message' => __('cms-pages::resolve.block_not_found'), 'code' => 'not_found']);
     $this->getJson('/api/v1/blocks/'.$stranger->uuid.'?path=/archive')->assertOk();
 });
 
@@ -141,7 +143,9 @@ it('reports a language prefix in the path of the page with 400', function (): vo
     $block = listingOn($page);
     publishPage($page);
 
-    $this->getJson('/api/v1/blocks/'.$block->uuid.'?path=/ru/catalogue')->assertStatus(400);
+    $this->getJson('/api/v1/blocks/'.$block->uuid.'?path=/ru/catalogue')
+        ->assertStatus(400)
+        ->assertJsonPath('code', 'bad_request');
 });
 
 it('checks a declared filter against the set of the subject of the page', function (): void {
