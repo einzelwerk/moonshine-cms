@@ -79,7 +79,7 @@ use OpenApi\Attributes as OA;
                     type: 'array',
                     items: new OA\Items(type: 'string'),
                 ),
-                new OA\Property(property: 'metadata', nullable: true, allOf: [new OA\Schema(ref: '#/components/schemas/CmsMetadata')]),
+                new OA\Property(property: 'metadata', type: 'object', nullable: true, allOf: [new OA\Schema(ref: '#/components/schemas/CmsMetadata')]),
                 new OA\Property(
                     property: 'json_ld',
                     description: 'Объекты schema.org страницы',

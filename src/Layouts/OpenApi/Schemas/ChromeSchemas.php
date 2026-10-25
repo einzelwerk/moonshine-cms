@@ -58,7 +58,7 @@ use OpenApi\Attributes as OA;
     required: ['label', 'link', 'broken', 'children'],
     properties: [
         new OA\Property(property: 'label', type: 'string', example: 'Условия использования'),
-        new OA\Property(property: 'link', nullable: true, allOf: [new OA\Schema(ref: '#/components/schemas/CmsLink')]),
+        new OA\Property(property: 'link', type: 'object', nullable: true, allOf: [new OA\Schema(ref: '#/components/schemas/CmsLink')]),
         new OA\Property(property: 'broken', description: 'Цель не разрешилась: адрес пустой, пункт всё равно отдан', type: 'boolean'),
         new OA\Property(property: 'icon', type: 'string', nullable: true),
         new OA\Property(property: 'variant', type: 'string', nullable: true),

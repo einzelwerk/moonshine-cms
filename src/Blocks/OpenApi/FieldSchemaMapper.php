@@ -233,6 +233,7 @@ final class FieldSchemaMapper
     {
         return new OA\Property(
             property: $name,
+            type: 'object',
             nullable: true,
             allOf: [new OA\Schema(ref: CommonSchemas::ref($component))],
         );

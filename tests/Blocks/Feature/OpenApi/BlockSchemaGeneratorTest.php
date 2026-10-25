@@ -324,7 +324,9 @@ it('describes a media field of the core as the stored reference, not a hydrated 
     // DescribesPayloadSchema.
     $image = cmsPropertyOf(cmsGenerated()['MediaCardBlockData'], 'image');
 
-    expect($image->allOf[0]->ref)->toBe(CommonSchemas::ref(CommonSchemas::MEDIA_REF));
+    expect($image->allOf[0]->ref)->toBe(CommonSchemas::ref(CommonSchemas::MEDIA_REF))
+        ->and($image->type)->toBe('object')
+        ->and($image->nullable)->toBeTrue();
 
     $reference = cmsCommon()[CommonSchemas::MEDIA_REF];
     $declared = array_map(
