@@ -82,4 +82,16 @@ return [
         'middleware' => ['api'],
         'block_throttle' => '60,1',
     ],
+
+    /*
+     * The security requirements `PageSecurityProcessor` writes on `GET
+     * <prefix>/resolve` and `GET <prefix>/blocks/{uuid}`. Both render the
+     * blocks of the installation, and a block may tailor its answer to the
+     * visitor; an installation whose blocks do lists that identity as optional
+     * with its own scheme names, `[[], ['clientUuid' => []]]`. The empty list
+     * says the endpoints are public.
+     */
+    'openapi' => [
+        'security' => [],
+    ],
 ];

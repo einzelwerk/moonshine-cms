@@ -462,10 +462,17 @@ fact; the slots of the menus are written the same way. With `darkaonline/l5-swag
         // By class name: the configuration has to survive `config:cache`.
         \Ewk\Cms\Blocks\OpenApi\CmsSchemasProcessor::class,
         \Ewk\Cms\Pages\OpenApi\SubjectSchemasProcessor::class,
+        \Ewk\Cms\Pages\OpenApi\PageSecurityProcessor::class,
         \Ewk\Cms\Layouts\OpenApi\MenuSlotsProcessor::class,
     ],
 ],
 ```
+
+Every operation of the package declares `security: []`. The resolver and the endpoint of
+one block render the blocks of the installation, which may read the identity of the
+visitor: `PageSecurityProcessor` replaces their `security` with
+`cms-pages.openapi.security`, in the scheme names of the installation. A scheme the
+document does not declare is a `LogicException`.
 
 `src/Blocks/OpenApi` holds no attributes and is not scanned.
 
@@ -698,6 +705,7 @@ reload; identical inline assets are rendered once.
 | `cms-pages.routes.prefix` | `api/v1` | Where the two endpoints hang. |
 | `cms-pages.routes.middleware` | `['api']` | The stack of the installation. |
 | `cms-pages.routes.block_throttle` | `'60,1'` | The rate limit of the endpoint of one block. |
+| `cms-pages.openapi.security` | `[]` | The security requirements of the resolver and the endpoint of one block in the contract, e.g. `[[], ['clientUuid' => []]]` for an optional identity. |
 
 `config/cms-layouts.php`:
 

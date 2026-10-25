@@ -2,16 +2,46 @@
 
 declare(strict_types=1);
 
+use Ewk\Cms\Pages\OpenApi\PageSecurityProcessor;
+use OpenApi\Analysis;
+use OpenApi\Annotations as OA;
 use OpenApi\Generator;
+use OpenApi\Utils\Pipeline;
 
 /**
  * @return array<string, mixed>
  */
-function publicContract(): array
+function publicContract(bool $withSecurityProcessor = false): array
 {
     $src = __DIR__.'/../../../../src';
+    $generator = new Generator();
 
-    $openapi = (new Generator())->generate([
+    if ($withSecurityProcessor) {
+        $pipes = [];
+        $generator->getProcessorPipeline()->walk(function (callable $pipe) use (&$pipes): void {
+            $pipes[] = $pipe;
+        });
+        $generator->setProcessorPipeline(new Pipeline([
+            ...$pipes,
+            static function (Analysis $analysis): void {
+                $openapi = $analysis->openapi;
+
+                if ($openapi instanceof OA\OpenApi) {
+                    $openapi->components = new OA\Components(['_context' => $openapi->_context]);
+                    $openapi->components->securitySchemes = [new OA\SecurityScheme([
+                        '_context' => $openapi->_context,
+                        'securityScheme' => 'clientUuid',
+                        'type' => 'apiKey',
+                        'in' => 'header',
+                        'name' => 'X-Client-Uuid',
+                    ])];
+                }
+            },
+            new PageSecurityProcessor(),
+        ]));
+    }
+
+    $openapi = $generator->generate([
         $src.'/Pages/Http/Controllers',
         $src.'/Pages/OpenApi/Schemas',
         $src.'/Layouts/Http/Controllers',
@@ -23,10 +53,15 @@ function publicContract(): array
     return is_array($document) ? $document : [];
 }
 
-it('declares every operation of the package public with an empty security list', function (): void {
+/**
+ * @param  array<string, mixed>  $document
+ * @return array<string, mixed>
+ */
+function securityByOperation(array $document): array
+{
     $operations = [];
 
-    foreach (publicContract()['paths'] as $item) {
+    foreach ($document['paths'] as $item) {
         foreach ($item as $operation) {
             $operations[$operation['operationId']] = $operation['security'] ?? null;
         }
@@ -34,7 +69,11 @@ it('declares every operation of the package public with an empty security list',
 
     ksort($operations);
 
-    expect($operations)->toBe([
+    return $operations;
+}
+
+it('declares every operation of the package public with an empty security list', function (): void {
+    expect(securityByOperation(publicContract()))->toBe([
         'CmsChromeV1' => [],
         'CmsMenuV1' => [],
         'CmsResolveV1' => [],
@@ -57,4 +96,32 @@ it('declares the subject of the resolver as a nullable reference to one componen
         ->and($schemas['CmsResolveSubject']['allOf'][1]['required'])->toBe(['slug'])
         ->and(array_keys($schemas['CmsResolveSubject']['allOf'][1]['properties']))->toBe(['slug'])
         ->and($schemas['CmsResolveSubject'])->not->toHaveKey('nullable');
+});
+
+it('writes the configured security on the operations that render blocks only', function (): void {
+    config()->set(PageSecurityProcessor::CONFIG, [[], ['clientUuid' => []]]);
+
+    $optional = [[], ['clientUuid' => []]];
+
+    expect(securityByOperation(publicContract(withSecurityProcessor: true)))->toBe([
+        'CmsChromeV1' => [],
+        'CmsMenuV1' => [],
+        'CmsResolveV1' => $optional,
+        'CmsShowBlockV1' => $optional,
+        'CmsSitemapFileV1' => [],
+        'CmsSitemapIndexV1' => [],
+    ]);
+});
+
+it('keeps the operations that render blocks public by default', function (): void {
+    expect(securityByOperation(publicContract(withSecurityProcessor: true)))
+        ->toHaveKey('CmsResolveV1', [])
+        ->toHaveKey('CmsShowBlockV1', []);
+});
+
+it('refuses a security scheme the document does not declare', function (): void {
+    config()->set(PageSecurityProcessor::CONFIG, [[], ['bearerAuth' => []]]);
+
+    expect(fn (): array => publicContract(withSecurityProcessor: true))
+        ->toThrow(LogicException::class, 'bearerAuth');
 });
