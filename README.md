@@ -478,9 +478,10 @@ fact; the slots of the menus are written the same way. With `darkaonline/l5-swag
 | `CmsLink`, `CmsPagination*`, `CmsFilters` | a resolved link, the pagination by mode, the filter panel |
 | `CmsError`, `CmsValidationError` | the refusals of every endpoint of the CMS |
 | `CmsResolveResponse`, `CmsBlockResponse` | the answers of the pages |
+| `CmsResolveSubject` | `BlockSubject` plus `slug`: the subject of a resolved address |
 | `Chrome`, `ChromeLayout`, `ChromePart`, `ChromeMenu`, `ChromeMenuItem` | the chrome |
 | `CmsMetadata`, `CmsJsonLd`, `CmsSitemapFile`, `CmsSitemapEntry` | the SEO part |
-| `BlockSubject`, `BlockSubject<Studly>` | the entity of a template page: `oneOf` of one variant per template type, `discriminator` on `type`; the resolver adds `slug` to it |
+| `BlockSubject`, `BlockSubject<Studly>` | the entity of a template page: `oneOf` of one variant per template type, `discriminator` on `type` |
 | `CmsSubjectData` | `anyOf` of the components the presenters describe; an installation may declare it itself |
 | `CmsResolveExtension` | an open placeholder an installation replaces by declaring a component of the same name: the keys its own contributors write |
 

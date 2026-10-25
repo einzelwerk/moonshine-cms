@@ -57,16 +57,7 @@ use OpenApi\Attributes as OA;
                     description: 'Сущность шаблонного адреса; null на обычной странице',
                     type: 'object',
                     nullable: true,
-                    allOf: [
-                        new OA\Schema(ref: '#/components/schemas/BlockSubject'),
-                        new OA\Schema(
-                            required: ['slug'],
-                            properties: [
-                                new OA\Property(property: 'slug', description: 'Slug для URL', type: 'string'),
-                            ],
-                            type: 'object',
-                        ),
-                    ],
+                    allOf: [new OA\Schema(ref: '#/components/schemas/CmsResolveSubject')],
                 ),
                 new OA\Property(
                     property: 'blocks',
@@ -87,6 +78,20 @@ use OpenApi\Attributes as OA;
                     type: 'array',
                     items: new OA\Items(ref: '#/components/schemas/CmsJsonLd'),
                 ),
+            ],
+            type: 'object',
+        ),
+    ],
+)]
+#[OA\Schema(
+    schema: 'CmsResolveSubject',
+    description: 'Сущность шаблонного адреса со slug',
+    allOf: [
+        new OA\Schema(ref: '#/components/schemas/BlockSubject'),
+        new OA\Schema(
+            required: ['slug'],
+            properties: [
+                new OA\Property(property: 'slug', description: 'Slug для URL', type: 'string'),
             ],
             type: 'object',
         ),

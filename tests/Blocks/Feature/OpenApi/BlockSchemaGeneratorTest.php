@@ -296,11 +296,16 @@ it('describes the children of a container as a recursive map of slots', function
 
     expect(cmsPropertyOf(cmsGenerated()[BlockSchemaGenerator::envelopeName(TocBlock::code())], 'children')->ref)
         ->toBe(CommonSchemas::ref(BlockSchemaGenerator::CHILDREN));
+});
 
-    // `null` in the enumeration and not only `nullable`: a block without a
-    // variant answers null, and in OpenAPI 3.0 the enumeration has to list it.
-    expect(cmsPropertyOf(cmsGenerated()[BlockSchemaGenerator::envelopeName(TextBlock::code())], 'variant')->enum)
-        ->toBe(['default', 'narrow', null]);
+it('declares the variant as a nullable enumeration of the variants without null', function (): void {
+    $variant = json_decode((string) json_encode(
+        cmsPropertyOf(cmsGenerated()[BlockSchemaGenerator::envelopeName(TextBlock::code())], 'variant')->jsonSerialize(),
+    ), true);
+
+    expect($variant['enum'])->toBe(['default', 'narrow'])
+        ->and($variant['nullable'])->toBeTrue()
+        ->and($variant['type'])->toBe('string');
 });
 
 it('never emits an empty required list, which is not valid OpenAPI', function (): void {

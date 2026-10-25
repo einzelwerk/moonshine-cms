@@ -154,11 +154,7 @@ final readonly class BlockSchemaGenerator
                     property: 'variant',
                     description: 'Вариант оформления; null — по умолчанию',
                     type: 'string',
-                    // `null` is a member of the enumeration, not only
-                    // `nullable`: a block without a chosen variant answers
-                    // null, and in OpenAPI 3.0 an optional enumeration has to
-                    // list it.
-                    enum: $variants === [] ? null : [...$variants, null],
+                    enum: $variants === [] ? null : $variants,
                     nullable: true,
                 ),
                 new OA\Property(
