@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/). Until
 `1.0.0` a minor version may contain breaking changes.
 
+## 0.2.3 — 2026-10-30
+
+### Fixed
+
+- The canonical address and the language versions keep the page number of numbered
+  pagination only: the growing slice of a "show more" list (`b[<anchor>][shown]`) and
+  a portion size the visitor asked for (`b[<anchor>][per_page]`) are dropped like the
+  filters, so a longer slice no longer gets indexed as a page of its own.
+
+### Added
+
+- `ResolvedParameters::sliceQueryKeys()` and the optional `SeoContext::$sliceKeys`.
+
 ## 0.2.2 — 2026-10-25
 
 ### Breaking
