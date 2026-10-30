@@ -26,7 +26,7 @@ use OpenApi\Attributes as OA;
             description: 'Канонический адрес и языковые версии',
             required: ['canonical', 'languages'],
             properties: [
-                new OA\Property(property: 'canonical', description: 'Канонический адрес: параметры пагинации остаются, фильтры исключены', type: 'string'),
+                new OA\Property(property: 'canonical', description: 'Канонический адрес: номер страницы пагинации остаётся; фильтры, `shown` и `per_page` исключены', type: 'string'),
                 new OA\Property(
                     property: 'languages',
                     description: 'Код языка → адрес версии, плюс `x-default`; пуст у неопубликованной страницы',

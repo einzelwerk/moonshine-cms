@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Ewk\Cms\Blocks\Models\CmsVersion;
 use Ewk\Cms\Blocks\Params\ResolvedParameters;
+use Ewk\Cms\Blocks\Tests\Fixtures\ParameterSets;
 use Ewk\Cms\Pages\Http\Resolve\ResolveContributorRegistry;
 use Ewk\Cms\Pages\Http\Resolve\ResolveDocument;
 use Ewk\Cms\Pages\Models\CmsPage;
@@ -31,12 +32,16 @@ function seoPage(array $attributes = []): CmsPage
     return $page;
 }
 
-function seoDocument(ResolvedPath $resolved, ?CmsVersion $version = null, string $locale = 'ru'): ResolveDocument
-{
+function seoDocument(
+    ResolvedPath $resolved,
+    ?CmsVersion $version = null,
+    string $locale = 'ru',
+    ?ResolvedParameters $parameters = null,
+): ResolveDocument {
     return new ResolveDocument(
         $resolved,
         $version ?? new CmsVersion(['published_at' => new Carbon('2026-09-14 10:00:00')]),
-        new ResolvedParameters(),
+        $parameters ?? new ResolvedParameters(),
         $locale,
     );
 }
@@ -65,6 +70,34 @@ it('writes the metadata object and the structured data into the document', funct
         ->and($document->get('metadata')['title'])->toBe('Афиша Акме')
         ->and($document->get('metadata')['alternates']['canonical'])->toBe('https://example.com/ru/afisha')
         ->and($document->get('json_ld'))->toBe([]);
+});
+
+it('keeps the page number in the canonical address and drops the filters and the size of the list', function (): void {
+    $page = seoPage();
+
+    $document = contributeTo(seoDocument(
+        ResolvedPath::page('/afisha', $page, PageType::make('page')),
+        parameters: ParameterSets::resolved(
+            ParameterSets::pages('afisha', ['city' => 'berlin'], page: 2, perPage: 20, defaultPerPage: 5),
+            ParameterSets::more('lenta', shown: 36),
+        ),
+    ));
+
+    $alternates = $document->get('metadata')['alternates'];
+
+    expect($alternates['canonical'])->toBe('https://example.com/ru/afisha?b[afisha][page]=2')
+        ->and($alternates['languages']['en'])->toBe('https://example.com/en/afisha?b[afisha][page]=2');
+});
+
+it('points a longer slice of a "show more" list at the page itself', function (): void {
+    $page = seoPage();
+
+    $document = contributeTo(seoDocument(
+        ResolvedPath::page('/afisha', $page, PageType::make('page')),
+        parameters: ParameterSets::resolved(ParameterSets::more('lenta', shown: 36)),
+    ));
+
+    expect($document->get('metadata')['alternates']['canonical'])->toBe('https://example.com/ru/afisha');
 });
 
 it('falls the title back to the name of the page in the language of the request', function (): void {

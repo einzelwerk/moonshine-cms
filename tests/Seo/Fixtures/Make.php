@@ -42,6 +42,7 @@ final class Make
     /**
      * @param  array<array-key, mixed>  $query
      * @param  list<string>  $filterKeys
+     * @param  list<string>  $sliceKeys
      * @param  list<string>  $languages
      */
     public static function context(
@@ -55,6 +56,7 @@ final class Make
         ?DateTimeInterface $publishedAt = new Carbon('2026-09-14 10:00:00'),
         ?string $fallbackTitle = null,
         ?string $fallbackImage = null,
+        array $sliceKeys = [],
     ): SeoContext {
         return new SeoContext(
             owner: $owner,
@@ -67,6 +69,7 @@ final class Make
             publishedAt: $publishedAt,
             fallbackTitle: $fallbackTitle,
             fallbackImage: $fallbackImage,
+            sliceKeys: $sliceKeys,
         );
     }
 

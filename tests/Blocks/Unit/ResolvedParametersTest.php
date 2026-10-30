@@ -50,6 +50,16 @@ it('names the filtering keys of every block of the page', function (): void {
         ->toBe(['b[afisha][city]', 'b[afisha][month]', 'b[lenta][date]']);
 });
 
+it('names the keys that size the list of every block of the page', function (): void {
+    $resolved = ParameterSets::resolved(
+        ParameterSets::pages('afisha'),
+        ParameterSets::more('lenta'),
+    );
+
+    expect($resolved->sliceQueryKeys())
+        ->toBe(['b[afisha][per_page]', 'b[afisha][shown]', 'b[lenta][per_page]', 'b[lenta][shown]']);
+});
+
 it('carries a portion size the visitor asked for into the address', function (): void {
     $resolved = ParameterSets::resolved(
         ParameterSets::pages('afisha', page: 2, perPage: 20, defaultPerPage: 5),

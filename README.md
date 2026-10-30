@@ -393,7 +393,8 @@ panel; the package registers none.
   address of a picture is the one its disk hands out, completed with `app.url` when the
   disk answers with a bare path.
 - **The canonical address points at itself**, the page number included; filtering
-  parameters are excluded and the query string is written by `PageQuery::encode()`.
+  parameters and the size of the list (`shown`, `per_page`) are excluded, and the query
+  string is written by `PageQuery::encode()`.
 - **Language versions** are built from the languages of the catalog, with `x-default`
   on the default language.
 - **JSON-LD** is a registry of builders the application fills; the package ships none.

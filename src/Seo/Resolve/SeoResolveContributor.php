@@ -92,6 +92,7 @@ final readonly class SeoResolveContributor implements ResolveContributor
             // No shared spare picture: the last line of defence stays with the
             // frontend.
             fallbackImage: null,
+            sliceKeys: $parameters->sliceQueryKeys(),
         );
     }
 

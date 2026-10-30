@@ -8,10 +8,12 @@ use Ewk\Cms\Blocks\Params\PageQuery;
 use Ewk\Cms\Seo\Support\SiteUrl;
 
 /**
- * The canonical address. Three rules: it points at itself including the page
+ * The canonical address. Four rules: it points at itself including the page
  * number of pagination, because the documentation of the search engine demands
- * exactly that; filtering parameters are excluded; the order of parameters is
- * fixed and the separator is `&`.
+ * exactly that; filtering parameters are excluded; so is the size of the list,
+ * the growing slice of a "show more" and a portion size the visitor asked for,
+ * because a longer list repeats the shorter one and is not a page of its own;
+ * the order of parameters is fixed and the separator is `&`.
  *
  * We can do this — and the frontend cannot — because the parameters of the
  * blocks arrive at the resolver, and which of them filter is derived from the
@@ -67,9 +69,10 @@ final readonly class CanonicalUrl
     }
 
     /**
-     * The query string of the canonical address: positional parameters of
-     * pagination stay, filtering ones are dropped, keys are sorted so two
-     * requests differing only in the order of parameters produce one address.
+     * The query string of the canonical address: the page number stays,
+     * filtering parameters and the size of the list are dropped, keys are
+     * sorted so two requests differing only in the order of parameters produce
+     * one address.
      */
     public function query(SeoContext $context): string
     {
@@ -77,7 +80,10 @@ final readonly class CanonicalUrl
         // link of pagination has to be the canonical address character for
         // character, and two encoders would differ over the brackets of a
         // nested key sooner or later.
-        return PageQuery::encode(self::withoutKeys($context->query, $context->filterKeys));
+        return PageQuery::encode(self::withoutKeys(
+            $context->query,
+            [...$context->filterKeys, ...$context->sliceKeys],
+        ));
     }
 
     /**

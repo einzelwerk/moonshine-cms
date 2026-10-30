@@ -56,6 +56,18 @@ it('drops a parent left empty by the removal', function (): void {
     expect(canonical()->build($context))->toBe('https://example.com/ru/afisha');
 });
 
+it('drops the size of the list and keeps the page number beside it', function (): void {
+    $slice = Make::context(
+        new SeoOwner(),
+        path: '/afisha',
+        query: ['b' => ['afisha' => ['page' => 2, 'per_page' => 20], 'raspisanie' => ['shown' => 15]]],
+        sliceKeys: ['b[afisha][per_page]', 'b[afisha][shown]', 'b[raspisanie][per_page]', 'b[raspisanie][shown]'],
+    );
+
+    expect(canonical()->build($slice))->toBe('https://example.com/ru/afisha?b[afisha][page]=2')
+        ->and(canonical()->forLocale($slice, 'de'))->toBe('https://example.com/de/afisha?b[afisha][page]=2');
+});
+
 it('produces one address for two requests that differ only in the order of parameters', function (): void {
     $first = Make::context(new SeoOwner(), query: ['b' => ['afisha' => ['shown' => 20, 'page' => 2]], 'a' => 1], filterKeys: []);
     $second = Make::context(new SeoOwner(), query: ['a' => 1, 'b' => ['afisha' => ['page' => 2, 'shown' => 20]]], filterKeys: []);

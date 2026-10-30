@@ -24,6 +24,7 @@ final readonly class SeoContext
      * @param  string  $path  The normalized path of the page, `/` for the root.
      * @param  array<array-key, mixed>  $query  Normalized block parameters, nested: `['b' => ['afisha' => ['page' => 2]]]`.
      * @param  list<string>  $filterKeys  Flat names of the filtering parameters, `b[afisha][city]`, derived from the schemas of the blocks of the page.
+     * @param  list<string>  $sliceKeys  Flat names of the parameters that only size the list on the page, `b[afisha][shown]`, `b[afisha][per_page]`.
      * @param  list<string>  $languages  Content languages of the catalog, bare codes.
      * @param  string  $defaultLanguage  The language `x-default` points at.
      * @param  DateTimeInterface|null  $publishedAt  `null` for a page that is not published: it has no language versions, it does not exist for a visitor.
@@ -45,6 +46,7 @@ final readonly class SeoContext
         // by the contributor that assembles this context.
         public ?string $fallbackTitle = null,
         public ?string $fallbackImage = null,
+        public array $sliceKeys = [],
     ) {
     }
 }

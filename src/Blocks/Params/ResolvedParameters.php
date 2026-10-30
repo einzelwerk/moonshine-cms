@@ -85,6 +85,27 @@ final readonly class ResolvedParameters
     }
 
     /**
+     * The keys that only size the list of a block, for the canonical address:
+     * a longer slice or a bigger portion shows the same list again, and only
+     * the page number makes a page of its own.
+     *
+     * @return list<string>
+     */
+    public function sliceQueryKeys(): array
+    {
+        $keys = [];
+
+        foreach ($this->anchors() as $anchor) {
+            $keys[] = self::key($anchor, 'per_page');
+            $keys[] = self::key($anchor, 'shown');
+        }
+
+        sort($keys);
+
+        return $keys;
+    }
+
+    /**
      * What a set writes into the address: the values that differ from the
      * declared defaults, plus the position when it is not the first one, plus a
      * portion size the visitor asked for himself. The cursor is never written
