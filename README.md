@@ -384,9 +384,11 @@ panel; the package registers none.
   Nothing is generated.
 - **Fallbacks are computed when the document is handed out**, never written back: an
   empty title becomes the name of the record, Open Graph falls back to the plain values,
-  Twitter to Open Graph, the picture to the cover. The description has no fallback on
-  purpose. An owner answers through `ProvidesSeoFallbacks`, or the caller puts
-  `fallbackTitle` and `fallbackImage` into the `SeoContext`.
+  Twitter to Open Graph, the picture to the cover. An owner answers through
+  `ProvidesSeoFallbacks`, or the caller puts `fallbackTitle` and `fallbackImage` into the
+  `SeoContext`. The description falls back only for an owner that implements
+  `ProvidesSeoDescriptionFallback`: its text, plain, cut at a word to 155 characters with
+  an ellipsis.
 - **The document has the shape of `Metadata` of Next** — `title`, `description`,
   `alternates`, `openGraph`, `twitter`, `robots` — so the frontend puts it into
   `generateMetadata` as it is. Page addresses are absolute and carry the language. The

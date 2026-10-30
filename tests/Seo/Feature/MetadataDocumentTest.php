@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Ewk\Cms\Seo\Models\CmsMetadata;
+use Ewk\Cms\Seo\Tests\Fixtures\DescribedOwner;
 use Ewk\Cms\Seo\Tests\Fixtures\Make;
 use Ewk\Cms\Seo\Tests\Fixtures\PlainOwner;
 use Illuminate\Support\Facades\Config;
@@ -53,6 +54,45 @@ it('never invents a description', function (): void {
     expect($document['description'])->toBeNull()
         ->and($document['openGraph']['description'])->toBeNull()
         ->and($document['twitter']['description'])->toBeNull();
+});
+
+function describedOwner(?string $about): DescribedOwner
+{
+    $owner = new DescribedOwner();
+    $owner->save();
+    $owner->about = $about;
+
+    return $owner;
+}
+
+it('takes an empty description from the text of an owner that opts into it, into Open Graph and Twitter too', function (): void {
+    $owner = describedOwner("  Stand-up\n\n<b>aus</b>   Berlin  ");
+
+    $document = Make::document(Make::context($owner));
+
+    expect($document['description'])->toBe('Stand-up aus Berlin')
+        ->and($document['openGraph']['description'])->toBe('Stand-up aus Berlin')
+        ->and($document['twitter']['description'])->toBe('Stand-up aus Berlin');
+});
+
+it('cuts a long text of the owner at a word, with an ellipsis', function (): void {
+    $owner = describedOwner(str_repeat('Komödie, ', 30));
+
+    $description = Make::document(Make::context($owner))['description'];
+
+    expect($description)->toEndWith('Komödie…')
+        ->and(mb_strlen((string) $description))->toBeLessThanOrEqual(156);
+});
+
+it('keeps the description the editor wrote over the text of the owner', function (): void {
+    $owner = describedOwner('Text des Veranstalters');
+    Make::metadata($owner, ['description' => ['ru' => 'Описание редактора']]);
+
+    expect(Make::document(Make::context($owner))['description'])->toBe('Описание редактора');
+});
+
+it('leaves the description empty when the text of the owner is blank', function (): void {
+    expect(Make::document(Make::context(describedOwner(" \n ")))['description'])->toBeNull();
 });
 
 it('takes the Open Graph title and description from the plain ones', function (): void {

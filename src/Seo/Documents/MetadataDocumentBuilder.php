@@ -7,6 +7,7 @@ namespace Ewk\Cms\Seo\Documents;
 use Ewk\Cms\Media\Enums\MediaVariantState;
 use Ewk\Cms\Media\Models\CmsMedia;
 use Ewk\Cms\Media\Models\CmsMediaVariant;
+use Ewk\Cms\Seo\Contracts\ProvidesSeoDescriptionFallback;
 use Ewk\Cms\Seo\Contracts\ProvidesSeoFallbacks;
 use Ewk\Cms\Seo\Models\CmsMetadata;
 use Illuminate\Contracts\Config\Repository;
@@ -19,13 +20,19 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
  * addresses as strings, absolute and with the language in them. The frontend
  * puts this object into `generateMetadata` without rework.
  *
- * The fallbacks — a title of the owner, a picture of the owner, the Open Graph
- * values for Twitter — are computed here, at the moment the document is handed
+ * The fallbacks — a title of the owner, a picture of the owner, a text of the
+ * owner that opts into it, the Open Graph values for Twitter — are computed here, at the moment the document is handed
  * out, and are never written back: a materialised title goes stale the first
  * time the entity is renamed.
  */
 final readonly class MetadataDocumentBuilder
 {
+    /**
+     * Characters of a description taken from the owner, the ellipsis aside:
+     * what a search engine shows of a snippet on a wide screen.
+     */
+    private const int DESCRIPTION_LENGTH = 155;
+
     public function __construct(
         private CanonicalUrl $canonical,
         private Repository $config,
@@ -44,9 +51,9 @@ final readonly class MetadataDocumentBuilder
 
         $title = $metadata?->titleFor($locale, $default) ?? self::fallbackTitle($context);
 
-        // No fallback for the description on purpose. `null` and not an empty
-        // string: an empty description tag is worse than none.
-        $description = $metadata?->descriptionFor($locale, $default);
+        // `null` and not an empty string: an empty description tag is worse
+        // than none.
+        $description = $metadata?->descriptionFor($locale, $default) ?? self::fallbackDescription($context);
 
         $ogTitle = $metadata?->ogTitleFor($locale, $default) ?? $title;
         $ogDescription = $metadata?->ogDescriptionFor($locale, $default) ?? $description;
@@ -262,6 +269,32 @@ final readonly class MetadataDocumentBuilder
         return $owner instanceof ProvidesSeoFallbacks
             ? self::nonEmpty($owner->seoFallbackTitle($context->locale))
             : null;
+    }
+
+    /**
+     * The text of the owner cut to the size a search engine shows, at a word
+     * and with an ellipsis, so the snippet does not end in half a word. Tags
+     * and runs of whitespace go: an organizer pastes a description out of a
+     * text editor, line breaks and all.
+     */
+    private static function fallbackDescription(SeoContext $context): ?string
+    {
+        $owner = $context->owner;
+
+        if (! $owner instanceof ProvidesSeoDescriptionFallback) {
+            return null;
+        }
+
+        $text = self::nonEmpty(trim((string) preg_replace('/\s+/u', ' ', strip_tags((string) $owner->seoFallbackDescription($context->locale)))));
+
+        if ($text === null || mb_strlen($text) <= self::DESCRIPTION_LENGTH) {
+            return $text;
+        }
+
+        $cut = mb_substr($text, 0, self::DESCRIPTION_LENGTH);
+        $space = mb_strrpos($cut, ' ');
+
+        return rtrim($space === false ? $cut : mb_substr($cut, 0, $space), ' ,.;:-–—').'…';
     }
 
     /**
