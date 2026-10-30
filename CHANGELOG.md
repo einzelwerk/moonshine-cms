@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/). Until
 `1.0.0` a minor version may contain breaking changes.
 
+## 0.2.4 — 2026-10-30
+
+### Added
+
+- `ProvidesSeoDescriptionFallback`: an owner that implements it answers an empty
+  description with a text of its own. The document strips tags and whitespace runs and
+  cuts the text at a word to 155 characters with an ellipsis; Open Graph and Twitter
+  take it from the plain description. `ProvidesSeoFallbacks` is unchanged.
+
 ## 0.2.3 — 2026-10-30
 
 ### Fixed
