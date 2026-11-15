@@ -223,6 +223,10 @@ Where `pagination(modeEditable: true, allowedModes: [...])` says so, the editor 
 mode of his own block; `per_page` and `pagination_mode` are the two non-field keys of
 `content`, so no block type may declare a field under either name.
 
+The `pattern()` of a `StringParam` is written without delimiters and checked in UTF-8
+mode: `^[\s\S]{2,100}$` counts characters, a value that is not UTF-8 is refused, and
+`\d`, `\w`, `\s` match beyond ASCII, so ASCII digits are spelled `[0-9]`.
+
 Parameters are namespaced by the anchor of the block, so two lists on one page never
 share `page` or `shown`:
 
