@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and the project adheres to [Semantic Versioning](https://semver.org/). Until
 `1.0.0` a minor version may contain breaking changes.
 
+## Unreleased
+
+### Fixed
+
+- An insertion of a shared block in the published state no longer reads `id` and
+  `parent_id` of a block hydrated out of the snapshot, which carries neither: a page
+  holding such an insertion answered 500 (`MissingAttributeException`) in an
+  installation with `Model::preventAccessingMissingAttributes()` or
+  `Model::shouldBeStrict()`. The envelope keeps the uuid, the anchor and the position
+  of the insertion as before.
+- The `pattern()` of a `StringParam` is checked in UTF-8 mode (the `u` modifier): a
+  quantifier counts characters and not bytes, so `^[\s\S]{2,100}$` no longer lets one
+  Cyrillic letter through, and a value that is not valid UTF-8 answers 422. As PHP's
+  `u` goes, `\d`, `\w` and `\s` now match beyond ASCII; spell `[0-9]` where only ASCII
+  digits are meant. A pattern that starts with `(*UTF)` keeps working.
+
 ## 0.2.4 — 2026-10-30
 
 ### Added
