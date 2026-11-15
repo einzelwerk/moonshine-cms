@@ -8,6 +8,7 @@ use Ewk\Cms\Blocks\Models\CmsSharedBlock;
 use Ewk\Cms\Blocks\Rendering\BlockRenderer;
 use Ewk\Cms\Blocks\Tests\Fixtures\BlockOwner;
 use Ewk\Cms\Blocks\Tests\Fixtures\Make;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @return list<array<string, mixed>>|null
@@ -194,4 +195,80 @@ it('shows the published state of a library entry, not its draft', function (): v
     $published = renderPublished($owner);
 
     expect($published[0]['data']['body'])->toBe('<p>Опубликовано</p>');
+});
+
+it('renders a published insertion when the models refuse to read a missing attribute', function (): void {
+    $owner = Make::owner();
+
+    $banner = CmsSharedBlock::query()->create(['code' => 'promo', 'name' => 'Акция']);
+    CmsBlock::create([
+        'blockable_type' => CmsSharedBlock::MORPH_ALIAS,
+        'blockable_id' => $banner->getKey(),
+        'type' => 'text',
+        'name' => 'Корень',
+        'content' => ['body' => ['ru' => '<p>Акция</p>']],
+    ]);
+
+    $twoColumns = CmsSharedBlock::query()->create(['code' => 'promo-columns', 'name' => 'Две колонки']);
+    $root = CmsBlock::create([
+        'blockable_type' => CmsSharedBlock::MORPH_ALIAS,
+        'blockable_id' => $twoColumns->getKey(),
+        'type' => 'columns',
+        'variant' => '2',
+        'name' => 'Колонки',
+    ]);
+    CmsBlock::create([
+        'blockable_type' => CmsSharedBlock::MORPH_ALIAS,
+        'blockable_id' => $twoColumns->getKey(),
+        'parent_id' => $root->getKey(),
+        'slot' => 'col_1',
+        'type' => 'text',
+        'name' => 'Левая',
+        'content' => ['body' => ['ru' => '<p>Слева</p>']],
+    ]);
+    CmsBlock::create([
+        'blockable_type' => CmsSharedBlock::MORPH_ALIAS,
+        'blockable_id' => $twoColumns->getKey(),
+        'parent_id' => $root->getKey(),
+        'slot' => 'col_2',
+        'type' => 'text',
+        'name' => 'Правая',
+    ]);
+
+    $first = Make::block($owner, [
+        'type' => 'shared',
+        'name' => 'Вставка',
+        'anchor' => 'promo',
+        'cms_shared_block_id' => $banner->getKey(),
+    ]);
+    $second = Make::block($owner, [
+        'type' => 'shared',
+        'name' => 'Вставка колонок',
+        'cms_shared_block_id' => $twoColumns->getKey(),
+        'sort_order' => 1,
+    ]);
+
+    app(PublishOwner::class)->handle($banner);
+    app(PublishOwner::class)->handle($twoColumns);
+    app(PublishOwner::class)->handle($owner);
+
+    app()->setLocale('ru');
+
+    // An installation may switch the strict mode on; a block hydrated out of a
+    // snapshot has no row behind it, so its row identity must not be read.
+    Model::shouldBeStrict();
+
+    try {
+        $published = renderPublished($owner);
+    } finally {
+        Model::shouldBeStrict(false);
+    }
+
+    expect($published)->toHaveCount(2)
+        ->and($published[0]['uuid'])->toBe($first->uuid)
+        ->and($published[0]['anchor'])->toBe('promo')
+        ->and($published[0]['data']['body'])->toBe('<p>Акция</p>')
+        ->and($published[1]['uuid'])->toBe($second->uuid)
+        ->and($published[1]['code'])->toBe('columns')
+        ->and($published[1]['children']['col_1'][0]['data']['body'])->toBe('<p>Слева</p>');
 });

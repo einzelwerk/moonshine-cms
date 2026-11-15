@@ -3,8 +3,11 @@
 declare(strict_types=1);
 
 use Ewk\Cms\Blocks\Actions\PublishOwner;
+use Ewk\Cms\Blocks\Blocks\SharedInsertionBlock;
 use Ewk\Cms\Blocks\Blocks\TextBlock;
+use Ewk\Cms\Blocks\Contracts\BlockRegistryInterface;
 use Ewk\Cms\Blocks\Models\CmsBlock;
+use Ewk\Cms\Blocks\Models\CmsSharedBlock;
 use Ewk\Cms\Pages\Events\PageResolved;
 use Ewk\Cms\Pages\Http\Resolve\ResolveContributor;
 use Ewk\Cms\Pages\Http\Resolve\ResolveContributorRegistry;
@@ -16,6 +19,7 @@ use Ewk\Cms\Pages\Tests\Fixtures\Concert;
 use Ewk\Cms\Pages\Tests\Fixtures\Make;
 use Ewk\Cms\Pages\Tests\Fixtures\TestPageTypes;
 use Ewk\Cms\Pages\Types\PageTypeRegistry;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Event;
 
@@ -365,4 +369,45 @@ it('fires nothing on a miss, on a draft and on a language prefix', function (): 
     $this->getJson('/api/v1/resolve?path=/ru/draft')->assertStatus(400);
 
     Event::assertNotDispatched(PageResolved::class);
+});
+
+it('answers a page with an insertion of a shared block while the models are strict', function (): void {
+    app(BlockRegistryInterface::class)->register(SharedInsertionBlock::class);
+
+    $shared = CmsSharedBlock::query()->create(['code' => 'promo', 'name' => 'Акция']);
+    CmsBlock::create([
+        'blockable_type' => CmsSharedBlock::MORPH_ALIAS,
+        'blockable_id' => $shared->getKey(),
+        'type' => TextBlock::code(),
+        'name' => 'Корень',
+        'content' => ['body' => ['ru' => 'Минус десять']],
+    ]);
+    app(PublishOwner::class)->handle($shared);
+
+    $page = resolvablePage('terms');
+    $own = resolvableBlock($page);
+    $insertion = resolvableBlock($page, [
+        'type' => SharedInsertionBlock::code(),
+        'name' => 'Вставка',
+        'content' => null,
+        'cms_shared_block_id' => $shared->getKey(),
+        'sort_order' => 1,
+    ]);
+    publishForResolve($page);
+
+    // An installation may run with `Model::shouldBeStrict()`: a block of the
+    // published snapshot is not a row, and a read of a column it lacks is a 500.
+    Model::shouldBeStrict();
+
+    try {
+        $response = $this->getJson('/api/v1/resolve?path=/terms');
+    } finally {
+        Model::shouldBeStrict(false);
+    }
+
+    $response->assertOk()
+        ->assertJsonPath('data.blocks.0.uuid', $own->uuid)
+        ->assertJsonPath('data.blocks.1.uuid', $insertion->uuid)
+        ->assertJsonPath('data.blocks.1.code', 'text')
+        ->assertJsonPath('data.blocks.1.data.body', 'Минус десять');
 });
