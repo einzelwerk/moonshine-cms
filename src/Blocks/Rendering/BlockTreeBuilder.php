@@ -22,6 +22,24 @@ use Illuminate\Database\Eloquent\Model;
 final class BlockTreeBuilder
 {
     /**
+     * The columns of an insertion that make up its identity in the envelope;
+     * everything else comes from the original.
+     *
+     * @var list<string>
+     */
+    private const array INSERTION_IDENTITY = [
+        'id',
+        'uuid',
+        'anchor',
+        'blockable_type',
+        'blockable_id',
+        'parent_id',
+        'slot',
+        'sort_order',
+        'cms_shared_block_id',
+    ];
+
+    /**
      * Live rows: what the editor sees, including the blocks he has not
      * published yet.
      *
@@ -227,25 +245,27 @@ final class BlockTreeBuilder
      * identity of the insertion: the uuid, the anchor and the position belong
      * to the insertion, so two placements of one banner stay addressable
      * apart.
+     *
+     * The identity is copied as the insertion holds it and never read through
+     * the accessors: an insertion hydrated out of a snapshot has no row behind
+     * it and carries no `id` and no `parent_id`, which a model that prevents
+     * accessing missing attributes refuses to read.
      */
     private function insertionView(CmsBlock $insertion, CmsBlock $original): CmsBlock
     {
-        $attributes = $original->getAttributes();
+        $identity = array_flip(self::INSERTION_IDENTITY);
 
-        $attributes['id'] = $insertion->getKey();
-        $attributes['uuid'] = $insertion->uuid;
-        $attributes['anchor'] = $insertion->anchor;
-        $attributes['blockable_type'] = $insertion->blockable_type;
-        $attributes['blockable_id'] = $insertion->blockable_id;
-        $attributes['parent_id'] = $insertion->parent_id;
-        $attributes['slot'] = $insertion->slot;
-        $attributes['sort_order'] = $insertion->sort_order;
-        $attributes['cms_shared_block_id'] = $insertion->cms_shared_block_id;
+        $attributes = array_intersect_key($insertion->getAttributes(), $identity)
+            + array_diff_key($original->getAttributes(), $identity);
 
         return (new CmsBlock())->newFromBuilder($attributes);
     }
 
     /**
+     * A snapshot node is not a row: its place in the tree is its nesting and
+     * its identity is its uuid, so the block comes without `id` and
+     * `parent_id`. Nothing on the published path may read them.
+     *
      * @param  array<string, mixed>  $node
      */
     private function hydrate(array $node, string $ownerType, int|string $ownerId): CmsBlock
