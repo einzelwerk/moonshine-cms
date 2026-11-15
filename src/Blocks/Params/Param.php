@@ -127,15 +127,22 @@ abstract class Param
      * A regular expression of the declaration carries no delimiters, because
      * it also has to describe the parameter in OpenAPI. The delimiter is
      * picked here out of the characters the pattern does not use.
+     *
+     * The expression runs in UTF-8 mode (`u`), as it does in OpenAPI: a
+     * quantifier counts characters and not bytes, so `{2,100}` does not take
+     * one Cyrillic letter for two, and a value that is not UTF-8 fails the
+     * check instead of being matched byte by byte. In PHP the modifier also
+     * makes `\d`, `\w` and `\s` match beyond ASCII; a pattern that means ASCII
+     * digits only spells `[0-9]`.
      */
     protected static function delimited(string $pattern): string
     {
         foreach (['/', '#', '~', '%'] as $delimiter) {
             if (! str_contains($pattern, $delimiter)) {
-                return $delimiter.$pattern.$delimiter;
+                return $delimiter.$pattern.$delimiter.'u';
             }
         }
 
-        return '/'.str_replace('/', '\/', $pattern).'/';
+        return '/'.str_replace('/', '\/', $pattern).'/u';
     }
 }

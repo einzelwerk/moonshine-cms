@@ -24,11 +24,35 @@ it('is not a filter and not nullable until it says so', function (): void {
         ->and($param->getDefault())->toBeNull();
 });
 
-it('wraps a declared pattern into a delimiter the pattern does not use', function (): void {
+it('wraps a declared pattern into a delimiter the pattern does not use, in UTF-8 mode', function (): void {
     expect(StringParam::make('month')->pattern('^\d{4}-(0[1-9]|1[0-2])$')->rules())
-        ->toBe(['string', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/'])
+        ->toBe(['string', 'regex:/^\d{4}-(0[1-9]|1[0-2])$/u'])
         ->and(StringParam::make('path')->pattern('^/tours/')->rules())
-        ->toBe(['string', 'regex:#^/tours/#']);
+        ->toBe(['string', 'regex:#^/tours/#u']);
+});
+
+it('counts the characters of a value against a declared pattern, not its bytes', function (): void {
+    $search = StringParam::make('search')->pattern('^[\s\S]{2,100}$');
+    $passes = fn (string $value): bool => validator(
+        ['search' => $search->valueForValidation($value)],
+        ['search' => $search->rules()],
+    )->passes();
+
+    // One Cyrillic letter is two bytes of UTF-8 and still one character.
+    expect($passes('я'))->toBeFalse()
+        ->and($passes('яя'))->toBeTrue()
+        ->and($passes(str_repeat('я', 100)))->toBeTrue()
+        ->and($passes(str_repeat('я', 51)))->toBeTrue()
+        ->and($passes(str_repeat('я', 101)))->toBeFalse()
+        // A value that is not UTF-8 at all is refused instead of being
+        // measured in bytes.
+        ->and($passes("\xff\xfe"))->toBeFalse();
+
+    // A pattern that switched the mode on by itself keeps working.
+    $verb = StringParam::make('search')->pattern('(*UTF)^[\s\S]{2,100}$');
+
+    expect(validator(['search' => 'я'], ['search' => $verb->rules()])->passes())->toBeFalse()
+        ->and(validator(['search' => 'яя'], ['search' => $verb->rules()])->passes())->toBeTrue();
 });
 
 it('normalizes a value into its declared type', function (): void {
